@@ -7,16 +7,55 @@
 //
 
 #import "AppDelegate.h"
-
 @implementation AppDelegate
 
 @synthesize window = _window;
+@synthesize splitViewController;
+@synthesize popoverViewController = _popoverViewController;
+
+- (void)splitViewController: (MGSplitViewController *)svc willHideViewController:(UIViewController *)aViewController
+          withBarButtonItem:(UIBarButtonItem *)barButtonItem
+       forPopoverController:(UIPopoverController *)pc
+{
+    barButtonItem.title = NSLocalizedString(@"Books", nil);
+    [self.splitViewController.detailViewController.navigationItem setLeftBarButtonItem:barButtonItem animated:NO];
+    self.popoverViewController = pc;
+}
+
+- (float)splitViewController:(MGSplitViewController *)svc constrainSplitPosition:(float)proposedPosition splitViewSize:(CGSize)viewSize {
+    /*if(svc.isLandscape){
+        if(proposedPosition<200)return 200;
+        if(proposedPosition>320)return 320;
+    }else{
+        NSLog(@"%f",proposedPosition);
+        if(proposedPosition<200)return 200;
+        if(proposedPosition>290)return 290;
+    }*/
+    return proposedPosition;
+}
+
+
+// called when the view is shown again in the split view, invalidating the button and popover controller
+//
+- (void)splitViewController: (MGSplitViewController *)svc willShowViewController:(UIViewController *)aViewController
+  invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem
+{
+    [self.splitViewController.detailViewController.navigationItem setLeftBarButtonItem:nil animated:NO];
+    self.popoverViewController = nil;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    self.splitViewController = [[MGSplitViewController alloc] init];
+    self.splitViewController.delegate = self;
+    UIViewController* vc1 = [[UIViewController alloc] init];
+    vc1.view.backgroundColor = [UIColor redColor];
+    UIViewController* vc2 = [[UIViewController alloc] init];
+    self.splitViewController.showsMasterInPortrait = YES;
+    self.splitViewController.masterViewController = vc1;
+    self.splitViewController.detailViewController = vc2;
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window addSubview:self.splitViewController.view];
     [self.window makeKeyAndVisible];
     return YES;
 }

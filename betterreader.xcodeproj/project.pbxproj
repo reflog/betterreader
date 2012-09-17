@@ -47,6 +47,9 @@
 		45923EF216075A970027522C /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923EE716075A970027522C /* AFXMLRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		45923EF316075A970027522C /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923EE916075A970027522C /* UIImageView+AFNetworking.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		45923EF716075AAF0027522C /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923EF616075AAF0027522C /* JSONKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45923F0616075FF60027522C /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923F0116075FF60027522C /* MGSplitCornersView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45923F0716075FF60027522C /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923F0316075FF60027522C /* MGSplitDividerView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45923F0816075FF60027522C /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45923F0516075FF60027522C /* MGSplitViewController.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		45A18F651607458A00BA4BFE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F641607458A00BA4BFE /* UIKit.framework */; };
 		45A18F671607458A00BA4BFE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F661607458A00BA4BFE /* Foundation.framework */; };
 		45A18F691607458A00BA4BFE /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F681607458A00BA4BFE /* CoreGraphics.framework */; };
@@ -211,6 +214,12 @@
 		45923EE916075A970027522C /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
 		45923EF516075AAF0027522C /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONKit.h; path = ../../nimbus/thirdparty/JSONKit/JSONKit.h; sourceTree = "<group>"; };
 		45923EF616075AAF0027522C /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JSONKit.m; path = ../../nimbus/thirdparty/JSONKit/JSONKit.m; sourceTree = "<group>"; };
+		45923F0016075FF60027522C /* MGSplitCornersView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitCornersView.h; sourceTree = "<group>"; };
+		45923F0116075FF60027522C /* MGSplitCornersView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitCornersView.m; sourceTree = "<group>"; };
+		45923F0216075FF60027522C /* MGSplitDividerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitDividerView.h; sourceTree = "<group>"; };
+		45923F0316075FF60027522C /* MGSplitDividerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitDividerView.m; sourceTree = "<group>"; };
+		45923F0416075FF60027522C /* MGSplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitViewController.h; sourceTree = "<group>"; };
+		45923F0516075FF60027522C /* MGSplitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitViewController.m; sourceTree = "<group>"; };
 		45A18F601607458A00BA4BFE /* betterreader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = betterreader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		45A18F641607458A00BA4BFE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		45A18F661607458A00BA4BFE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -419,6 +428,19 @@
 			name = JSONKit;
 			sourceTree = "<group>";
 		};
+		45923EFF16075FE60027522C /* MGSplitViewController */ = {
+			isa = PBXGroup;
+			children = (
+				45923F0016075FF60027522C /* MGSplitCornersView.h */,
+				45923F0116075FF60027522C /* MGSplitCornersView.m */,
+				45923F0216075FF60027522C /* MGSplitDividerView.h */,
+				45923F0316075FF60027522C /* MGSplitDividerView.m */,
+				45923F0416075FF60027522C /* MGSplitViewController.h */,
+				45923F0516075FF60027522C /* MGSplitViewController.m */,
+			);
+			name = MGSplitViewController;
+			sourceTree = "<group>";
+		};
 		45A18F551607458900BA4BFE = {
 			isa = PBXGroup;
 			children = (
@@ -530,6 +552,7 @@
 		45A18FBE160746F500BA4BFE /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				45923EFF16075FE60027522C /* MGSplitViewController */,
 				45923EF416075AA30027522C /* JSONKit */,
 				45923ED416075A970027522C /* AFNetworking */,
 				45A19040160747D000BA4BFE /* DTCoreText.xcodeproj */,
@@ -723,6 +746,9 @@
 				45923EF216075A970027522C /* AFXMLRequestOperation.m in Sources */,
 				45923EF316075A970027522C /* UIImageView+AFNetworking.m in Sources */,
 				45923EF716075AAF0027522C /* JSONKit.m in Sources */,
+				45923F0616075FF60027522C /* MGSplitCornersView.m in Sources */,
+				45923F0716075FF60027522C /* MGSplitDividerView.m in Sources */,
+				45923F0816075FF60027522C /* MGSplitViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
