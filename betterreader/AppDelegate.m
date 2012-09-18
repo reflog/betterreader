@@ -7,11 +7,13 @@
 //
 
 #import "AppDelegate.h"
+#import "FeedsViewController.h"
 @implementation AppDelegate
 
 @synthesize window = _window;
 @synthesize splitViewController;
 @synthesize popoverViewController = _popoverViewController;
+@synthesize feedsNav, tabsNav;
 
 - (void)splitViewController: (MGSplitViewController *)svc willHideViewController:(UIViewController *)aViewController
           withBarButtonItem:(UIBarButtonItem *)barButtonItem
@@ -48,12 +50,15 @@
 {
     self.splitViewController = [[MGSplitViewController alloc] init];
     self.splitViewController.delegate = self;
-    UIViewController* vc1 = [[UIViewController alloc] init];
-    vc1.view.backgroundColor = [UIColor redColor];
-    UIViewController* vc2 = [[UIViewController alloc] init];
+    FeedsViewController* feeds = [[FeedsViewController alloc] init];
+    UIViewController* tabs = [[UIViewController alloc] init];
+    self.feedsNav = [[UINavigationController alloc] initWithRootViewController:feeds];
+    self.tabsNav = [[UINavigationController alloc] initWithRootViewController:tabs];
     self.splitViewController.showsMasterInPortrait = YES;
-    self.splitViewController.masterViewController = vc1;
-    self.splitViewController.detailViewController = vc2;
+    self.splitViewController.allowsDraggingDivider = YES;
+    self.splitViewController.dividerStyle = MGSplitViewDividerStylePaneSplitter;
+    self.splitViewController.masterViewController = feedsNav;
+    self.splitViewController.detailViewController = tabsNav;
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [self.window addSubview:self.splitViewController.view];
     [self.window makeKeyAndVisible];
