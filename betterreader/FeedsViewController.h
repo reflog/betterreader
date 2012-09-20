@@ -1,15 +1,18 @@
 //
-//  FeedsViewController.h
-//  betterreader
+// Created by eli on 9/20/12.
 //
-//  Created by Sir Reflog on 9/17/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+// To change the template use AppCode | Preferences | File Templates.
 //
 
-#import <UIKit/UIKit.h>
+
+#import <Foundation/Foundation.h>
 #import "NINetworkTableViewController.h"
 
-@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate>
+@class Feed;
 
+
+@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate, DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate>
+
+@property (nonatomic, strong) Feed* feed;
 
 @end

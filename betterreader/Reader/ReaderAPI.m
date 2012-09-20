@@ -6,16 +6,18 @@
 #import "AFJSONRequestOperation.h"
 #import "Utils.h"
 #import "NimbusCore+Additions.h"
+#import "Feed.h"
 
 @interface ReaderAPI ()
 {
 }
 @property(nonatomic, strong) GTMOAuth2Authentication* authentication;
+@property(nonatomic, strong) NSString* userId;
 @end
 
 @implementation ReaderAPI
 
-@synthesize authentication, feeds, labels;
+@synthesize authentication, feeds, labels, userId;
 
 - (id)init {
     self = [super init];
@@ -23,6 +25,7 @@
         self.authentication = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:kKeychainItemName
                                                                                     clientID:kClientID
                                                                                 clientSecret:kClientSecret];
+        self.userId = [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"];
     }
 
     return self;
@@ -39,7 +42,7 @@
 }
 
 - (BOOL)requiresAuthentication {
-    return ![self.authentication canAuthorize];
+    return ![self.authentication canAuthorize] || self.userId == nil;
 }
 
 - (NSString*) applyCommonParamsToUrl:(NSString*)url {
@@ -48,64 +51,49 @@
     return [url stringByAddingQueryDictionary:[NSDictionary dictionaryWithObjectsAndKeys:ts,@"ck",kAppName,@"client", nil]];
 }
 
-- (void) applyUnredCountsWithData:(NSDictionary*) data 
+- (void)performJSONFetchUrl:(NSString*)furl withBlock:(operation_block_t)block withProcessBlock:(json_process_block_t)json_process
 {
-    for(NSDictionary* unreadCount in [data valueForKey:@"unreadcounts"]){
-        Subscription* s = [self.feeds valueForKey: [unreadCount valueForKey:@"id"]];
-        if(s){
-            s.unreadCount = [[unreadCount valueForKey:@"count"] intValue];
-            s.newestItemTimestampUsec = [[unreadCount valueForKey:@"newestItemTimestampUsec"] longLongValue];
-        }
-    }
-}
-
-- (void)fetchFeed:(NSString*)feedId withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly
-{
-    NSString* furl = [NSString stringWithFormat:@"%@%@?r=n&n=%d%@", kFeedItemsUrl, feedId, kMaxItemsPerFetch, unreadOnly ? @"&xt=user/<usrId_>/state/com.google/read" : @"", nil];
     NSURL* url = [NSURL URLWithString:[self applyCommonParamsToUrl: furl]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    
+
     [self.authentication authorizeRequest:request completionHandler:^(NSError *error) {
         if(error)
         {
             block(error);
         }else{
             AFJSONRequestOperation* operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-                                                                                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-                                                                                                    NSLog(@"%@",descriptionForRequest(request));
-                                                                                                   // [me applyUnredCountsWithData: JSON];
-                                                                                                   // block(nil);
-                                                                                                } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-                                                                                                    NSLog(@"%@",descriptionForRequest(request));
-  //                                                                                                  block(error);
-                                                                                                }];
+                    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+                        NSLog(@"%@",descriptionForRequest(request));
+                        json_process(JSON);
+                        block(nil);
+                    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+                        NSLog(@"%@",descriptionForRequest(request));
+                        block(error);                                                                                                  block(error);
+                    }];
             [operation start];
         }
+    }];
+
+}
+
+- (void)fetchFeed:(Subscription*)subscription withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly
+{
+    NSString* furl = [NSString stringWithFormat:@"%@%@?r=n&n=%d%@", kFeedItemsUrl, [subscription.subscribtionId stringByAddingPercentEscapesForURLParameter], kMaxItemsPerFetch, unreadOnly ? [NSString stringWithFormat:@"&xt=user/%@/state/com.google/read" , self.userId] : @"", nil];
+    [self performJSONFetchUrl:furl withBlock:block withProcessBlock:^(id data) {
+        subscription.feed = [Feed instanceFromDictionary:data];
     }];
 }
 
 - (void)fetchUnreadCountsWithBlock:(operation_block_t)block
 {
-    NSURL* url = [NSURL URLWithString:[self applyCommonParamsToUrl: kUnreadCountsUrl]];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    
-    __block id me = self;
-    [self.authentication authorizeRequest:request completionHandler:^(NSError *error) {
-        if(error)
-        {
-            block(error);
-        }else{
-            AFJSONRequestOperation* operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-            success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-                NSLog(@"%@",descriptionForRequest(request));
-                [me applyUnredCountsWithData: JSON];
-                block(nil);
-            } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-                NSLog(@"%@",descriptionForRequest(request));
-                block(error);
-            }];
-            [operation start];
-        }
+    [self performJSONFetchUrl:kUnreadCountsUrl withBlock:block withProcessBlock:^(id data) {
+        for(NSDictionary* unreadCount in [data valueForKey:@"unreadcounts"]){
+                Subscription* s = [self.feeds valueForKey: [unreadCount valueForKey:@"id"]];
+                if(s){
+                    s.unreadCount = [[unreadCount valueForKey:@"count"] intValue];
+                    s.newestItemTimestampUsec = [[unreadCount valueForKey:@"newestItemTimestampUsec"] longLongValue];
+                }
+            }
     }];
 }
 
@@ -127,7 +115,7 @@
                     block([operation error]);
                 else{
                     [me parseSubscriptions:document];
-                    [self fetchUnreadCountsWithBlock: block];                    
+                    [me fetchUnreadCountsWithBlock: block];
                 }
             } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, GDataXMLDocument *document) {
                 NSLog(@"%@",descriptionForRequest(request));
@@ -162,12 +150,20 @@
 }
 
 - (UIViewController *)authenticateWithBlock:(auth_block_t)block {
-    GTMOAuth2ViewControllerTouch *viewController = [GTMOAuth2ViewControllerTouch controllerWithScope:kAuthScope clientID:kClientID clientSecret:kClientSecret keychainItemName:kKeychainItemName completionHandler:^(GTMOAuth2ViewControllerTouch *viewController, GTMOAuth2Authentication *auth, NSError *error) {
-        self.authentication = auth;
+    __block ReaderAPI* me = self;
+    GTMOAuth2ViewControllerTouch *viewController = [GTMOAuth2ViewControllerTouch controllerWithScope:kAuthScope clientID:kClientID clientSecret:kClientSecret keychainItemName:kKeychainItemName
+    completionHandler:^(GTMOAuth2ViewControllerTouch *viewController, GTMOAuth2Authentication *auth, NSError *error) {
+        me.authentication = auth;
         if(error){
             block(YES, [error code] == kGTMOAuth2ErrorWindowClosed);
         }else {
-            block(NO, NO);
+            [me performJSONFetchUrl:kUserInfoUrl withBlock:^(NSError *error) {
+                block(error == nil, NO);
+            } withProcessBlock:^(id o) {
+                self.userId = [o valueForKey:@"userId"];
+                [[NSUserDefaults standardUserDefaults] setValue:self.userId forKey:@"userId"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            }];
         }
     }];
     return viewController;

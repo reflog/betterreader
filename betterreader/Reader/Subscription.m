@@ -7,10 +7,13 @@
 //
 
 #import "Subscription.h"
+#import "Feed.h"
 
 @implementation Subscription
 
 @synthesize htmlUrl, title, sortId, labels, firstItemSec, unreadCount, newestItemTimestampUsec, subscribtionId;
+@synthesize feed = _feed;
+
 
 - (id) initWithNode:(GDataXMLNode*)node
 {

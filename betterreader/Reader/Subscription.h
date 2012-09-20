@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "GDataXMLNode.h"
 
+@class Feed;
+
 @interface Subscription : NSObject
 
 - (id) initWithNode:(GDataXMLNode*)node;
@@ -20,4 +22,5 @@
 @property (nonatomic)        long long firstItemSec;
 @property (nonatomic)        long long newestItemTimestampUsec;
 @property (nonatomic)              int unreadCount;
+@property(nonatomic, strong) Feed *feed;
 @end

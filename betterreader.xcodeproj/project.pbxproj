@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		188A24F48BA6046114219BA1 /* FeedsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 188A27522CAC133BBA533EC4 /* FeedsViewController.m */; };
 		285FE098134B75A4E3B8DB80 /* NSCache+BlocksKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 285FEFB61895FDC91E9B4E59 /* NSCache+BlocksKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		285FE2D29FCA4BFB5BF8CCBF /* libA2DynamicDelegate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 285FEB61C1EB94FA9ED755D9 /* libA2DynamicDelegate.a */; };
 		285FE3137B5F9921275CD7A2 /* UIActionSheet+BlocksKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 285FE13EA58B25D1C150FBCC /* UIActionSheet+BlocksKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -181,8 +182,11 @@
 		4592405C160769890027522C /* GDataServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = 45924059160769890027522C /* GDataServerError.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4592405E160769B80027522C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4592405D160769B80027522C /* Security.framework */; };
 		45924060160769CD0027522C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4592405F160769CD0027522C /* SystemConfiguration.framework */; };
-		4592406716076A880027522C /* FeedsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4592406616076A880027522C /* FeedsViewController.m */; };
+		4592406716076A880027522C /* SubscriptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4592406616076A880027522C /* SubscriptionsViewController.m */; };
 		45924071160871400027522C /* Subscription.m in Sources */ = {isa = PBXBuildFile; fileRef = 459240701608713F0027522C /* Subscription.m */; };
+		45A1866F160B9F65002922B7 /* Feed.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A1866A160B9F65002922B7 /* Feed.m */; };
+		45A18670160B9F65002922B7 /* Item.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A1866C160B9F65002922B7 /* Item.m */; };
+		45A18671160B9F65002922B7 /* ItemContent.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A1866E160B9F65002922B7 /* ItemContent.m */; };
 		45A18F651607458A00BA4BFE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F641607458A00BA4BFE /* UIKit.framework */; };
 		45A18F671607458A00BA4BFE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F661607458A00BA4BFE /* Foundation.framework */; };
 		45A18F691607458A00BA4BFE /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A18F681607458A00BA4BFE /* CoreGraphics.framework */; };
@@ -264,6 +268,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		188A25919F94B949A07671AA /* FeedsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedsViewController.h; sourceTree = "<group>"; };
+		188A27522CAC133BBA533EC4 /* FeedsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedsViewController.m; sourceTree = "<group>"; };
 		285FE01BB321C1AAF5B61A58 /* NSSet+BlocksKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSSet+BlocksKit.h"; sourceTree = "<group>"; };
 		285FE037B49E2746D8C40968 /* NSArray+BlocksKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+BlocksKit.h"; sourceTree = "<group>"; };
 		285FE0B504D62948D790E2E9 /* MFMailComposeViewController+BlocksKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MFMailComposeViewController+BlocksKit.h"; sourceTree = "<group>"; };
@@ -583,11 +589,17 @@
 		45924059160769890027522C /* GDataServerError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDataServerError.m; sourceTree = "<group>"; };
 		4592405D160769B80027522C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		4592405F160769CD0027522C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		4592406516076A880027522C /* FeedsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedsViewController.h; sourceTree = "<group>"; };
-		4592406616076A880027522C /* FeedsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedsViewController.m; sourceTree = "<group>"; };
+		4592406516076A880027522C /* SubscriptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubscriptionsViewController.h; sourceTree = "<group>"; };
+		4592406616076A880027522C /* SubscriptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SubscriptionsViewController.m; sourceTree = "<group>"; };
 		4592406F1608713E0027522C /* Subscription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Subscription.h; sourceTree = "<group>"; };
 		459240701608713F0027522C /* Subscription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Subscription.m; sourceTree = "<group>"; };
 		459240721608C7E40027522C /* OAuth2Secrets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OAuth2Secrets.h; sourceTree = "<group>"; };
+		45A18669160B9F65002922B7 /* Feed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Feed.h; sourceTree = "<group>"; };
+		45A1866A160B9F65002922B7 /* Feed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Feed.m; sourceTree = "<group>"; };
+		45A1866B160B9F65002922B7 /* Item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Item.h; sourceTree = "<group>"; };
+		45A1866C160B9F65002922B7 /* Item.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Item.m; sourceTree = "<group>"; };
+		45A1866D160B9F65002922B7 /* ItemContent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemContent.h; sourceTree = "<group>"; };
+		45A1866E160B9F65002922B7 /* ItemContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemContent.m; sourceTree = "<group>"; };
 		45A18F601607458A00BA4BFE /* betterreader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = betterreader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		45A18F641607458A00BA4BFE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		45A18F661607458A00BA4BFE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -682,6 +694,12 @@
 		285FE3619C5D778E399BD567 /* Reader */ = {
 			isa = PBXGroup;
 			children = (
+				45A18669160B9F65002922B7 /* Feed.h */,
+				45A1866A160B9F65002922B7 /* Feed.m */,
+				45A1866B160B9F65002922B7 /* Item.h */,
+				45A1866C160B9F65002922B7 /* Item.m */,
+				45A1866D160B9F65002922B7 /* ItemContent.h */,
+				45A1866E160B9F65002922B7 /* ItemContent.m */,
 				285FE1427FAEB877B654763B /* ReaderAPI.m */,
 				285FE83040148A155AC595F8 /* ReaderAPI.h */,
 				459240701608713F0027522C /* Subscription.m */,
@@ -1183,12 +1201,14 @@
 		45A18F6A1607458A00BA4BFE /* betterreader */ = {
 			isa = PBXGroup;
 			children = (
+				188A25919F94B949A07671AA /* FeedsViewController.h */,
+				188A27522CAC133BBA533EC4 /* FeedsViewController.m */,
 				CE4D6201160B09D1009EF22D /* AFXMLDomRequestOperation.h */,
 				CE4D6202160B09D1009EF22D /* AFXMLDomRequestOperation.m */,
 				45A18F731607458A00BA4BFE /* AppDelegate.h */,
 				45A18F741607458A00BA4BFE /* AppDelegate.m */,
-				4592406516076A880027522C /* FeedsViewController.h */,
-				4592406616076A880027522C /* FeedsViewController.m */,
+				4592406516076A880027522C /* SubscriptionsViewController.h */,
+				4592406616076A880027522C /* SubscriptionsViewController.m */,
 				459240721608C7E40027522C /* OAuth2Secrets.h */,
 				CEC041DE160B33EE00482BA5 /* Utils.h */,
 				CEC041DF160B33EE00482BA5 /* Utils.m */,
@@ -1581,7 +1601,7 @@
 				4592405A160769890027522C /* GDataAuthenticationFetcher.m in Sources */,
 				4592405B160769890027522C /* GDataProgressMonitorInputStream.m in Sources */,
 				4592405C160769890027522C /* GDataServerError.m in Sources */,
-				4592406716076A880027522C /* FeedsViewController.m in Sources */,
+				4592406716076A880027522C /* SubscriptionsViewController.m in Sources */,
 				45924071160871400027522C /* Subscription.m in Sources */,
 				CE4D6203160B09D1009EF22D /* AFXMLDomRequestOperation.m in Sources */,
 				CEC041E0160B33EE00482BA5 /* Utils.m in Sources */,
@@ -1613,6 +1633,10 @@
 				285FE4D2A7305B80C541711E /* UIPopoverController+BlocksKit.m in Sources */,
 				285FE9082884FAF1552D712D /* UIView+BlocksKit.m in Sources */,
 				285FE98850E15410A1BA2540 /* UIWebView+BlocksKit.m in Sources */,
+				45A1866F160B9F65002922B7 /* Feed.m in Sources */,
+				45A18670160B9F65002922B7 /* Item.m in Sources */,
+				45A18671160B9F65002922B7 /* ItemContent.m in Sources */,
+				188A24F48BA6046114219BA1 /* FeedsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

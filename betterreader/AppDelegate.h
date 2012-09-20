@@ -14,5 +14,5 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) MGSplitViewController* splitViewController;
 @property (strong, nonatomic) UIPopoverController* popoverViewController; 
-@property (strong, nonatomic) UINavigationController *feedsNav, *tabsNav;
+@property (strong, nonatomic) UINavigationController *subsNav, *feedsNav;
 @end

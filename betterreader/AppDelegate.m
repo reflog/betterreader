@@ -7,13 +7,14 @@
 //
 
 #import "AppDelegate.h"
+#import "SubscriptionsViewController.h"
 #import "FeedsViewController.h"
 @implementation AppDelegate
 
 @synthesize window = _window;
 @synthesize splitViewController;
 @synthesize popoverViewController = _popoverViewController;
-@synthesize feedsNav, tabsNav;
+@synthesize subsNav, feedsNav;
 
 - (void)splitViewController: (MGSplitViewController *)svc willHideViewController:(UIViewController *)aViewController
           withBarButtonItem:(UIBarButtonItem *)barButtonItem
@@ -22,18 +23,6 @@
     barButtonItem.title = NSLocalizedString(@"Books", nil);
     [self.splitViewController.detailViewController.navigationItem setLeftBarButtonItem:barButtonItem animated:NO];
     self.popoverViewController = pc;
-}
-
-- (float)splitViewController:(MGSplitViewController *)svc constrainSplitPosition:(float)proposedPosition splitViewSize:(CGSize)viewSize {
-    /*if(svc.isLandscape){
-        if(proposedPosition<200)return 200;
-        if(proposedPosition>320)return 320;
-    }else{
-        NSLog(@"%f",proposedPosition);
-        if(proposedPosition<200)return 200;
-        if(proposedPosition>290)return 290;
-    }*/
-    return proposedPosition;
 }
 
 
@@ -50,15 +39,16 @@
 {
     self.splitViewController = [[MGSplitViewController alloc] init];
     self.splitViewController.delegate = self;
-    FeedsViewController* feeds = [[FeedsViewController alloc] init];
-    UIViewController* tabs = [[UIViewController alloc] init];
+    SubscriptionsViewController *subscriptions = [[SubscriptionsViewController alloc] init];
+    FeedsViewController*feeds = [[FeedsViewController alloc] init];
+    self.subsNav = [[UINavigationController alloc] initWithRootViewController:subscriptions];
     self.feedsNav = [[UINavigationController alloc] initWithRootViewController:feeds];
-    self.tabsNav = [[UINavigationController alloc] initWithRootViewController:tabs];
+    subscriptions.feedsViewController = feeds;
     self.splitViewController.showsMasterInPortrait = YES;
     self.splitViewController.allowsDraggingDivider = YES;
     self.splitViewController.dividerStyle = MGSplitViewDividerStylePaneSplitter;
-    self.splitViewController.masterViewController = feedsNav;
-    self.splitViewController.detailViewController = tabsNav;
+    self.splitViewController.masterViewController = subsNav;
+    self.splitViewController.detailViewController = feedsNav;
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [self.window addSubview:self.splitViewController.view];
     [self.window makeKeyAndVisible];
