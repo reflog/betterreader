@@ -14,4 +14,6 @@ xcuserdata
 profile
 *.moved-aside
 DerivedData
+*.swp
+.idea
 .DS_Store

@@ -7,139 +7,116 @@
 //
 
 #import "FeedsViewController.h"
-#import "GTMOAuth2ViewControllerTouch.h"
-#import "AFXMLRequestOperation.h"
-#import "GDataXMLNode.h"
-#import "Subscribtion.h"
-#import "OAuth2Secrets.h"
+#import "Subscription.h"
+#import "Utils.h"
+#import "NIBadgeView.h"
+#import "ReaderAPI.h"
+
 @interface FeedsViewController ()
-@property(nonatomic, strong) GTMOAuth2Authentication* authentication;
-- (void) fetchSubscribtions;
+{
+    operation_block_t subscriptionFetchResultBlock;
+    BOOL unreadOnly;
+}
+@property(nonatomic,strong) NITableViewModel* model;
+@property (nonatomic, readwrite, retain) NITableViewActions* actions;
 @end
 
 @implementation FeedsViewController
-@synthesize authentication, feeds, labels;
+@synthesize model, actions;
 
-- (id)init
-{
-    self = [super initWithNibName:nil bundle:nil];
-    if (self) {
-        // Custom initialization
+- (UITableViewCell *)tableViewModel: (NITableViewModel *)tableViewModel
+                   cellForTableView: (UITableView *)tableView
+                        atIndexPath: (NSIndexPath *)indexPath
+                         withObject: (id)object {
+    // A pretty standard implementation of creating table view cells follows.
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"row"];
+    
+    if (nil == cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault
+                                       reuseIdentifier: @"row"] ;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryView = [[NIBadgeView alloc] initWithFrame: CGRectZero];
     }
-    return self;
-}
-- (void) viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    }
-
-#define kAuthScope  @"http://www.google.com/reader/api http://www.google.com/reader/atom"
-#define kSubscribtionsUrl @"https://www.google.com/reader/api/0/subscription/list"
-
-
-- (NSString *)descriptionForRequest:(NSURLRequest*)request
-{
-    __block NSMutableString *displayString = [NSMutableString stringWithFormat:@"%@\nRequest\n-------\ncurl -X %@", 
-                                              [[NSDate date] descriptionWithLocale:[NSLocale currentLocale]],
-                                              [request HTTPMethod]];
+    Subscription * s = [object objectForKey:@"value"];
+    NIBadgeView *badgeView = (NIBadgeView *) cell.accessoryView;
+    badgeView.backgroundColor = [UIColor whiteColor];
+    badgeView.text = [NSString stringWithFormat:@"%d", s.unreadCount];;
+    [badgeView sizeToFit];
+    cell.textLabel.text = s.title;
     
-    [[request allHTTPHeaderFields] enumerateKeysAndObjectsUsingBlock:^(id key, id val, BOOL *stop)
-     {
-         [displayString appendFormat:@" -H \"%@: %@\"", key, val];
-     }];
-    
-    [displayString appendFormat:@" \"%@\"",  [request.URL absoluteString]];
-    
-    if ([[request HTTPMethod] isEqualToString:@"POST"]) {
-        NSString *bodyString = [[NSString alloc] initWithData:[request HTTPBody]
-                                                      encoding:NSUTF8StringEncoding] ;
-        [displayString appendFormat:@" -d \"%@\"", bodyString];        
-    }
-    
-    return displayString;
+    return cell;
 }
 
-- (void) fetchSubscribtions
+
+- (void)buildSubscriptionModel
 {
-    [self setIsLoading:YES];
-    NSURL* url = [NSURL URLWithString:kSubscribtionsUrl];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    self.authentication.shouldAuthorizeAllRequests = YES;
-    [self.authentication authorizeRequest:request completionHandler:^(NSError *error) {
-        if(error)
-        {
-            //
-        }else{
-            AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-            [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                NSError* e = nil;
-                GDataXMLDocument* doc = [[GDataXMLDocument alloc] initWithData:operation.responseData  options:0 error:&e];
-                if(!e){
-                    NSMutableArray* fds = [NSMutableArray array];
-                    NSMutableDictionary* lbls = [NSMutableDictionary dictionary];
-                    for(id zz in [[doc.rootElement.children objectAtIndex:0] children]){
-                        Subscribtion * su = [[Subscribtion alloc] initWithNode: zz];
-                        [fds addObject:su];
-                        for (NSString* l in su.labels) {
-                            NSMutableArray* lfeeds = [lbls valueForKey:l];
-                            if (!lfeeds) {
-                                lfeeds = [NSMutableArray array];
-                                [lbls setValue:lfeeds forKey:l];
-                            }
-                            [lfeeds addObject:su];
-                        }
-                    }
-                    self.feeds = fds;
-                    self.labels = lbls;
-                }else {
-                    NSLog(@"%@",e);
-                }
-                //
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                NSLog(@"%@\n%@",error,[self descriptionForRequest:request]);
-            }];
-            
-            [operation start];    
+    NITableViewActionBlock tapAction = ^BOOL(id object, UIViewController *controller) {
+        ShowMessage(NSLocalizedString(@"Bla", nil), [object description]);
+        return YES;
+    };  
+
+    
+    NSMutableArray* modelData = [NSMutableArray array];
+    for (NSString* label in [[ReaderAPI sharedInstance].labels allKeys]) {
+        [modelData addObject:label];
+        int c = 0;
+        for(Subscription * s in [[ReaderAPI sharedInstance].labels valueForKey:label]){
+            if(s.unreadCount > 0 || !unreadOnly) {
+                [modelData addObject:[self.actions attachTapAction:tapAction toObject:[NSDictionary dictionaryWithObject:s forKey:@"value"]]];
+                c++;
+            }
         }
-        
-    }];
+        if(c == 0)
+            [modelData removeLastObject];
+    }
+    self.model = [[NITableViewModel alloc] initWithSectionedArray:modelData delegate:self];
+    self.tableView.dataSource = self.model;
+    [self.tableView reloadData];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.authentication = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:kKeychainItemName
-                                                                 clientID:kClientID
-                                                             clientSecret:kClientSecret];
-    BOOL isSignedIn = [self.authentication canAuthorize];
-    if(!isSignedIn)
-    {
-    
-        GTMOAuth2ViewControllerTouch *viewController = [GTMOAuth2ViewControllerTouch controllerWithScope:kAuthScope clientID:kClientID clientSecret:kClientSecret keychainItemName:kKeychainItemName completionHandler:^(GTMOAuth2ViewControllerTouch *viewController, GTMOAuth2Authentication *auth, NSError *error) {
-            self.authentication = auth;
-            if(error){
-                if([error code] == kGTMOAuth2ErrorWindowClosed){
-                    
-                }
-            }else {
-                [self fetchSubscribtions];
+    self.title = NSLocalizedString(@"Feeds", nil);
+    unreadOnly = YES;
+    __block UIBarButtonItem* btn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Unread", nil) style:UIBarButtonItemStylePlain handler:^(id sender) {
+        unreadOnly = !unreadOnly;
+        btn.title = unreadOnly ? NSLocalizedString(@"Unread", nil) : NSLocalizedString(@"All", nil);
+        [self buildSubscriptionModel];
+    }];
+    self.navigationItem.rightBarButtonItem = btn;
+    __block id me = self;
+    subscriptionFetchResultBlock = ^(NSError *error) {
+        //TODO: errors?
+        [me setIsLoading:NO];
+
+        [me buildSubscriptionModel];
+    };
+    [self setIsLoading:YES];
+    self.actions = [[NITableViewActions alloc] initWithController:self];
+    self.tableView.delegate = self.actions;
+
+    if([[ReaderAPI sharedInstance] requiresAuthentication])
+        [self authenticateTry];
+    else
+        [[ReaderAPI sharedInstance] fetchSubscriptionsWithBlock:subscriptionFetchResultBlock];
+}
+
+- (void)authenticateTry {
+    [[self navigationController] pushViewController:[[ReaderAPI sharedInstance] authenticateWithBlock:^(BOOL success, BOOL closed) {
+            if(closed || !success){
+                NSString* msg = closed ? NSLocalizedString(@"Cannot continue without logging in. Please try again!", nil) : NSLocalizedString(@"Invalid credentials!", nil);
+                UIAlertView *alert = [UIAlertView alertViewWithTitle:NSLocalizedString(@"Error", nil) message:msg];
+                [alert setCancelButtonWithTitle:NSLocalizedString(@"OK", nil) handler:^{
+                    [self authenticateTry];
+                }];
+            } else {
+                [[ReaderAPI sharedInstance] fetchSubscriptionsWithBlock:subscriptionFetchResultBlock];
             }
-        }];
-        [[self navigationController] pushViewController:viewController animated:YES];	
-    }else {
-        [self fetchSubscribtions];
-    }
+        }] animated:YES];
 }
 
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+    return NIIsSupportedOrientation(toInterfaceOrientation);
 }
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-	return YES;
-}
-
 @end

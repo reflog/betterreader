@@ -1,16 +1,16 @@
 //
-//  Subscribtion.m
+//  Subscription.m
 //  betterreader
 //
 //  Created by Sir Reflog on 9/18/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "Subscribtion.h"
+#import "Subscription.h"
 
-@implementation Subscribtion
+@implementation Subscription
 
-@synthesize htmlUrl, title, sortid, labels, firstItemSec;
+@synthesize htmlUrl, title, sortId, labels, firstItemSec, unreadCount, newestItemTimestampUsec, subscribtionId;
 
 - (id) initWithNode:(GDataXMLNode*)node
 {
@@ -19,9 +19,14 @@
         for(GDataXMLElement* el in [node children]){
             NSString* name = [[el attributeForName:@"name"] stringValue];
             NSString* ev = [el stringValue];
-            if([name isEqualToString: @"htmlUrl"]) self.htmlUrl = ev;
-            else if([name isEqualToString: @"title"]) self.title = ev;
-            else if([name isEqualToString: @"sortid"]) self.sortid = ev;
+            if([name isEqualToString: @"htmlUrl"]) 
+                self.htmlUrl = ev;
+            else if([name isEqualToString: @"id"]) 
+                self.subscribtionId = ev;
+            else if([name isEqualToString: @"title"]) 
+                self.title = ev;
+            else if([name isEqualToString: @"sortid"]) 
+                self.sortId = ev;
             else if([name isEqualToString: @"categories"])
             {
                 NSMutableArray* lbls = [NSMutableArray array];
@@ -35,12 +40,12 @@
                 }
                 self.labels = lbls;
             }
-            else if([name isEqualToString: @"firstitemmsec"]) self.firstItemSec = [NSNumber numberWithLongLong:[ev longLongValue]];
+            else if([name isEqualToString: @"firstitemmsec"]) 
+                self.firstItemSec = [ev longLongValue];
         }
     }
     return self;
 }
-
 
 //=========================================================== 
 // - (NSArray *)keyPaths
@@ -51,9 +56,12 @@
     NSArray *result = [NSArray arrayWithObjects:
                        @"htmlUrl",
                        @"title",
-                       @"sortid",
+                       @"sortId",
                        @"labels",
                        @"firstItemSec",
+                       @"newestItemTimestampUsec",
+                       @"subscribtionId",
+                       @"unreadCount",
                        nil];
     
     return result;

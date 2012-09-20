@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NINetworkTableViewController.h"
 
-@interface FeedsViewController : NINetworkTableViewController
+@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate>
 
-@property(nonatomic,strong) NSArray* feeds;
-@property(nonatomic,strong) NSDictionary* labels;
+
 @end
