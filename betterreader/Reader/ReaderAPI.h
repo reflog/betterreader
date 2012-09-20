@@ -10,13 +10,17 @@ typedef void (^operation_block_t)(NSError *);
 #define kAuthScope  @"http://www.google.com/reader/api http://www.google.com/reader/atom"
 #define kSubscriptionsUrl @"https://www.google.com/reader/api/0/subscription/list"
 #define kUnreadCountsUrl @"https://www.google.com/reader/api/0/unread-count?allcomments=true&autorefresh=2&output=json"
+#define kFeedItemsUrl @"https://www.google.com/reader/api/0/stream/contents/"
+#define kMaxItemsPerFetch 20
 #define kAppName @"BetterReaderIOS"
+
 @interface ReaderAPI : NSObject
 
 + (ReaderAPI*) sharedInstance;
 - (BOOL) requiresAuthentication;
 - (UIViewController *) authenticateWithBlock:(auth_block_t)block;
 - (void)fetchSubscriptionsWithBlock:(operation_block_t)block;
+- (void)fetchFeed:(NSString*)feedId withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly;
 
 
 @property(nonatomic,strong) NSDictionary* feeds; // feed by id

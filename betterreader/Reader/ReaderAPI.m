@@ -59,6 +59,31 @@
     }
 }
 
+- (void)fetchFeed:(NSString*)feedId withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly
+{
+    NSString* furl = [NSString stringWithFormat:@"%@%@?r=n&n=%d%@", kFeedItemsUrl, feedId, kMaxItemsPerFetch, unreadOnly ? @"&xt=user/<usrId_>/state/com.google/read" : @"", nil];
+    NSURL* url = [NSURL URLWithString:[self applyCommonParamsToUrl: furl]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    
+    [self.authentication authorizeRequest:request completionHandler:^(NSError *error) {
+        if(error)
+        {
+            block(error);
+        }else{
+            AFJSONRequestOperation* operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                                                                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+                                                                                                    NSLog(@"%@",descriptionForRequest(request));
+                                                                                                   // [me applyUnredCountsWithData: JSON];
+                                                                                                   // block(nil);
+                                                                                                } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+                                                                                                    NSLog(@"%@",descriptionForRequest(request));
+  //                                                                                                  block(error);
+                                                                                                }];
+            [operation start];
+        }
+    }];
+}
+
 - (void)fetchUnreadCountsWithBlock:(operation_block_t)block
 {
     NSURL* url = [NSURL URLWithString:[self applyCommonParamsToUrl: kUnreadCountsUrl]];

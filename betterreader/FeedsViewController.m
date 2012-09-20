@@ -51,7 +51,10 @@
 - (void)buildSubscriptionModel
 {
     NITableViewActionBlock tapAction = ^BOOL(id object, UIViewController *controller) {
-        ShowMessage(NSLocalizedString(@"Bla", nil), [object description]);
+        Subscription * s = [object objectForKey:@"value"];
+        [[ReaderAPI sharedInstance] fetchFeed:s.subscribtionId withBlock:^(NSError *e) {
+            //
+        } unreadOnly:NO];
         return YES;
     };  
 
