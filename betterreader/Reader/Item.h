@@ -16,6 +16,7 @@
     NSString *crawlTimeMsec;
     BOOL isReadStateLocked;
     NSString *itemId;
+    NSString *authro;
     long long published;
     long long timestampUsec;
     NSString *title;
@@ -25,6 +26,7 @@
 @property (nonatomic, copy) NSArray *canonical;
 @property (nonatomic, strong) ItemContent *content;
 @property (nonatomic, copy) NSString *crawlTimeMsec;
+@property (nonatomic, copy) NSString *author;
 @property (nonatomic, assign) BOOL isReadStateLocked;
 @property (nonatomic, copy) NSString *itemId;
 @property (nonatomic, assign) long long published;

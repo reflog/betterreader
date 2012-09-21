@@ -1,5 +1,11 @@
 #import "Utils.h"
 
+void RequestBrowserOpen(id s)
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kEventBrowserOpen object:s];
+}
+
+
 NSString * descriptionForRequest(NSURLRequest* request)
 {
     __block NSMutableString *displayString = [NSMutableString stringWithFormat:@"%@\nRequest\n-------\ncurl -X %@", 

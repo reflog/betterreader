@@ -136,7 +136,8 @@
     for(id zz in [[document.rootElement.children objectAtIndex:0] children]){
         Subscription * su = [[Subscription alloc] initWithNode: zz];
         [fds setValue:su forKey:su.subscribtionId];
-        for (NSString* l in su.labels) {
+        NSArray *curLabels = su.labels.count > 0 ? su.labels : [NSArray arrayWithObject:kUnlabeledItems];
+        for (NSString* l in curLabels) {
             NSMutableArray* lfeeds = [lbls valueForKey:l];
             if (!lfeeds) {
                 lfeeds = [NSMutableArray array];

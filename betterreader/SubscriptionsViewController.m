@@ -67,7 +67,7 @@
     
     NSMutableArray* modelData = [NSMutableArray array];
     for (NSString* label in [[ReaderAPI sharedInstance].labels allKeys]) {
-        [modelData addObject:label];
+        [modelData addObject:[label isEqualToString:kUnlabeledItems] ? @"" : label];
         int c = 0;
         for(Subscription * s in [[ReaderAPI sharedInstance].labels valueForKey:label]){
             if(s.unreadCount > 0 || !unreadOnly) {

@@ -9,6 +9,10 @@
 #import "AppDelegate.h"
 #import "SubscriptionsViewController.h"
 #import "FeedsViewController.h"
+#import "NIOverview.h"
+#import "Utils.h"
+#import "NIWebController.h"
+
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -35,8 +39,22 @@
     self.popoverViewController = nil;
 }
 
+- (void) openBrowser:(NSNotification *)n{
+    NSURL *url = [n.object isKindOfClass:[NSURL class]] ? n.object : [NSURL URLWithString:n.object] ;
+
+    NIWebController *webController = [[NIWebController alloc] initWithURL:url];
+    __block MGSplitViewController* me = self.splitViewController;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:webController];
+    navigationController.modalPresentationStyle = UIModalPresentationPageSheet;
+    webController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone handler:^(id sender) {
+        [me dismissModalViewControllerAnimated:YES];
+    }];
+    [self.splitViewController presentModalViewController:navigationController animated:YES];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [NIOverview applicationDidFinishLaunching];
     self.splitViewController = [[MGSplitViewController alloc] init];
     self.splitViewController.delegate = self;
     SubscriptionsViewController *subscriptions = [[SubscriptionsViewController alloc] init];
@@ -51,6 +69,14 @@
     self.splitViewController.detailViewController = feedsNav;
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [self.window addSubview:self.splitViewController.view];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openBrowser:) name:kEventBrowserOpen object:nil];
+    
+    
+    // then you add the Overview view to the window.
+    [NIOverview addOverviewToWindow:self.window];    
+    
     [self.window makeKeyAndVisible];
     return YES;
 }
@@ -79,6 +105,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 

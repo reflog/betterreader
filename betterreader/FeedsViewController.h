@@ -10,8 +10,8 @@
 
 @class Feed;
 
-
-@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate, DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate>
+@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate,
+                                DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate>
 
 @property (nonatomic, strong) Feed* feed;
 

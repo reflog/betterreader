@@ -10,39 +10,80 @@
 #import "Item.h"
 #import <QuartzCore/QuartzCore.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import "FeedItemCell.h"
+#import "Utils.h"
 
 @interface FeedsViewController()
 {
     NSCache* cellCache;
+    NSMutableSet *mediaPlayers;
 }
 @property(nonatomic,strong) NITableViewModel* model;
+@property (nonatomic, strong) NSMutableSet *mediaPlayers;
+
 @end
 
 @implementation FeedsViewController
 @synthesize feed = _feed;
-@synthesize model;
+@synthesize model, mediaPlayers;
 
+- (void)viewWillDisappear:(BOOL)animated;
+{
+	// stop all playing media
+	for (MPMoviePlayerController *player in self.mediaPlayers)
+	{
+		[player stop];
+	}
 
-- (DTAttributedTextCell *)tableView:(UITableView *)tableView preparedCellForIndexPath:(NSIndexPath *)indexPath
+	[super viewWillDisappear:animated];
+}
+
+- (void)linkPushed:(DTLinkButton *)button
+{
+	NSURL *URL = button.URL;
+
+	if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
+	{
+        RequestBrowserOpen([URL absoluteURL]);
+	}
+	else
+	{
+        #if 0
+		if (![URL host] && ![URL path])
+		{
+
+			// possibly a local anchor link
+			NSString *fragment = [URL fragment];
+
+			if (fragment)
+			{
+                DTAttributedTextContentView *_textView = [button associatedValueForKey:"contentView"];
+				[_textView scrollToAnchorNamed:fragment animated:NO];
+			}
+		}
+		#endif
+	}
+}
+
+- (FeedItemCell *)tableView:(UITableView *)tableView preparedCellForIndexPath:(NSIndexPath *)indexPath
 {
 	static NSString *cellIdentifier = @"cellIdentifier";    
 	if (!cellCache)
 		cellCache = [[NSCache alloc] init];
 	
+    Item *item = [self.model objectAtIndexPath:indexPath];
 	// workaround for iOS 5 bug
 	NSString *key = [NSString stringWithFormat:@"%d-%d", indexPath.section, indexPath.row];	
-	DTAttributedTextCell *cell = [cellCache objectForKey:key];    
+	FeedItemCell *cell = [cellCache objectForKey:key];    
 	if (!cell)
 	{
-        cell = [[DTAttributedTextCell alloc] initWithReuseIdentifier:cellIdentifier accessoryType:UITableViewCellAccessoryNone];
+        cell = [[FeedItemCell alloc] initWithReuseIdentifier:cellIdentifier item:item];
         cell.attributedTextContextView.shouldDrawImages = YES;
         cell.attributedTextContextView.delegate = self;
         cell.attributedTextContextView.shouldDrawLinks = NO;
 		[cellCache setObject:cell forKey:key];
 	}
 	
-    Item *i = [self.model objectAtIndexPath:indexPath];
-    [cell setHTMLString:i.content.content];
 	return cell;
 }
 
@@ -52,7 +93,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	DTAttributedTextCell *cell = (DTAttributedTextCell *)[self tableView:tableView preparedCellForIndexPath:indexPath];
+	FeedItemCell *cell = [self tableView:tableView preparedCellForIndexPath:indexPath];
     
 	return [cell requiredRowHeightInTableView:tableView];
 }
@@ -61,6 +102,7 @@
 {
     [cellCache removeAllObjects];
     _feed = f;
+    self.title = f.title;
     self.model = [[NITableViewModel alloc] initWithListArray:self.feed.items delegate:self];
     self.tableView.dataSource = self.model;
     [self.tableView reloadData];
@@ -69,6 +111,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 }
+
 
 
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttributedString:(NSAttributedString *)string frame:(CGRect)frame
@@ -83,8 +126,8 @@
 	button.URL = URL;
 	button.minimumHitSize = CGSizeMake(25, 25); // adjusts it's bounds so that button is always large enough
 	button.GUID = identifier;
-	
-	// we draw the contents ourselves
+    //[button associateValue:attributedTextContentView withKey:"contentView"];
+    // we draw the contents ourselves
 	button.attributedString = string;
 	
 	// make a version with different text color
@@ -109,6 +152,10 @@
 	return button;
 }
 
+- (BOOL)videoView:(DTWebVideoView *)videoView shouldOpenExternalURL:(NSURL *)url {
+    return NO;
+}
+
 
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttachment:(DTTextAttachment *)attachment frame:(CGRect)frame
 {
@@ -119,7 +166,7 @@
 		// we could customize the view that shows before playback starts
 		UIView *grayView = [[UIView alloc] initWithFrame:frame];
 		grayView.backgroundColor = [DTColor blackColor];
-#if 0		
+
 		// find a player for this URL if we already got one
 		MPMoviePlayerController *player = nil;
 		for (player in self.mediaPlayers)
@@ -182,7 +229,7 @@
 		player.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		player.view.frame = grayView.bounds;
 		[grayView addSubview:player.view];
-#endif		
+
 		return grayView;
 	}
 	else if (attachment.contentType == DTTextAttachmentTypeImage)
@@ -215,6 +262,7 @@
 	{
 		frame.origin.x += 50;
 		DTWebVideoView *videoView = [[DTWebVideoView alloc] initWithFrame:frame];
+        videoView.delegate = self;
 		videoView.attachment = attachment;
 		
 		return videoView;
@@ -241,15 +289,17 @@
 	NSURL *url = lazyImageView.url;
 	CGSize imageSize = size;
 	
-	NSPredicate *pred = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
     
 	for (int i=0;i<[self.model tableView:self.tableView numberOfRowsInSection:0];i++){
         NSIndexPath* ip = [NSIndexPath indexPathForRow:i inSection:0];
-        DTAttributedTextCell* cell = [self tableView:self.tableView preparedCellForIndexPath:ip];
+        FeedItemCell* cell = [self tableView:self.tableView preparedCellForIndexPath:ip];
         // update all attachments that matchin this URL (possibly multiple images with same size)
         DTAttributedTextContentView* _textView = cell.attributedTextContextView;
-        for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:pred])
+        BOOL ok = NO;
+        for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:predicate])
         {
+            ok = YES;
             oneAttachment.originalSize = imageSize;
             
             if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
@@ -257,9 +307,10 @@
                 oneAttachment.displaySize = imageSize;
             }
         }
-        // redo layout
-        // here we're layouting the entire string, might be more efficient to only relayout the paragraphs that contain these attachments
-        [_textView relayoutText];
+        if(ok){
+            [_textView relayoutText];
+         //   [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject: ip] withRowAnimation:UITableViewRowAnimationNone];
+        }
     }
     [self.tableView reloadData];
 }

@@ -21,6 +21,7 @@
 @synthesize timestampUsec;
 @synthesize title;
 @synthesize updated;
+@synthesize author;
 
 + (Item *)instanceFromDictionary:(NSDictionary *)aDictionary
 {
@@ -44,7 +45,21 @@
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    if ([key isEqualToString:@"content"]) {
+    if ([key isEqualToString:@"canonical"]) {
+        
+        if ([value isKindOfClass:[NSArray class]])
+        {
+            
+            NSMutableArray *myMembers = [NSMutableArray arrayWithCapacity:[value count]];
+            for (id valueMember in value) {
+                [myMembers addObject:[valueMember valueForKey:@"href"]];
+            }
+            
+            self.canonical = myMembers;
+            
+        }
+        
+    }else if ([key isEqualToString:@"content"] || [key isEqualToString:@"summary"]) {
         if ([value isKindOfClass:[NSDictionary class]]) {
             self.content = [ItemContent instanceFromDictionary:value];
         }

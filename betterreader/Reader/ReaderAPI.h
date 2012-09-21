@@ -18,6 +18,7 @@ typedef void (^json_process_block_t)(id);
 
 #define kMaxItemsPerFetch 20
 #define kAppName @"BetterReaderIOS"
+#define kUnlabeledItems @"___UNLABELED_ITEMS___"
 
 @interface ReaderAPI : NSObject
 
