@@ -27,7 +27,8 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
     AFXMLDomRequestOperation *requestOperation = [[[self alloc] initWithRequest:urlRequest] autorelease];
     [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, __unused id responseObject) {
         if (success) {
-            GDataXMLDocument *XMLDocument = [(AFXMLDomRequestOperation *)operation responseXMLDocument];            
+            GDataXMLDocument *XMLDocument = [(AFXMLDomRequestOperation *)operation responseXMLDocument];   
+            //NSLog(@"%@", [[NSString alloc]initWithData:XMLDocument.XMLData encoding:NSUTF8StringEncoding]);
             success(operation.request, operation.response, XMLDocument);
         }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

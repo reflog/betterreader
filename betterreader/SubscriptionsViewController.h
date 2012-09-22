@@ -11,7 +11,7 @@
 
 @class FeedsViewController;
 
-@interface SubscriptionsViewController : NINetworkTableViewController<NITableViewModelDelegate>
+@interface SubscriptionsViewController : NINetworkTableViewController
 
 
 @property(nonatomic, strong) FeedsViewController *feedsViewController;

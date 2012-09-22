@@ -89,6 +89,7 @@
         [self.contentView addSubview:_plusShareBtn];
         [self.contentView addSubview:_keepUnreadBtn];
 		[self.contentView addSubview:_attributedTextContextView];
+    //    [self setHTMLString:@"<div>test <img src=\"http://www.gravatar.com/avatar/a41a211aed3597a7d55f9b7ca5b32a41?s=32&d=identicon&r=PG\" width=\"200\" height=\"200\"/></div>"];
         [self setHTMLString:item.content.content];
     }
     return self;

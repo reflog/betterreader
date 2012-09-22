@@ -12,6 +12,7 @@
 #import "NIOverview.h"
 #import "Utils.h"
 #import "NIWebController.h"
+#import "DCIntrospect.h"
 
 @implementation AppDelegate
 
@@ -54,7 +55,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [NIOverview applicationDidFinishLaunching];
+  //  [NIOverview applicationDidFinishLaunching];
     self.splitViewController = [[MGSplitViewController alloc] init];
     self.splitViewController.delegate = self;
     SubscriptionsViewController *subscriptions = [[SubscriptionsViewController alloc] init];
@@ -75,9 +76,14 @@
     
     
     // then you add the Overview view to the window.
-    [NIOverview addOverviewToWindow:self.window];    
+  //  [NIOverview addOverviewToWindow:self.window];    
     
     [self.window makeKeyAndVisible];
+    
+    // always call after makeKeyAndDisplay.
+#if TARGET_IPHONE_SIMULATOR
+    [[DCIntrospect sharedIntrospector] start];
+#endif
     return YES;
 }
 

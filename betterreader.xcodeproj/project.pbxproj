@@ -230,6 +230,10 @@
 		45A1903D160747A000BA4BFE /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A19039160747A000BA4BFE /* ImageIO.framework */; };
 		45A1903E160747A000BA4BFE /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A1903A160747A000BA4BFE /* libxml2.dylib */; };
 		45A1903F160747A000BA4BFE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A1903B160747A000BA4BFE /* QuartzCore.framework */; };
+		45A3AFFA160E54E900A7DCF0 /* DCCrossHairView.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A3AFF2160E54E900A7DCF0 /* DCCrossHairView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45A3AFFB160E54E900A7DCF0 /* DCFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A3AFF4160E54E900A7DCF0 /* DCFrameView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45A3AFFC160E54E900A7DCF0 /* DCIntrospect.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A3AFF6160E54E900A7DCF0 /* DCIntrospect.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		45A3AFFD160E54E900A7DCF0 /* DCStatusBarOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A3AFF9160E54E900A7DCF0 /* DCStatusBarOverlay.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		CE0288C0160B50B300CD7C1D /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE0288BF160B50B300CD7C1D /* MessageUI.framework */; };
 		CE4D6203160B09D1009EF22D /* AFXMLDomRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CE4D6202160B09D1009EF22D /* AFXMLDomRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		CEC041E0160B33EE00482BA5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC041DF160B33EE00482BA5 /* Utils.m */; };
@@ -702,6 +706,15 @@
 		45A1903A160747A000BA4BFE /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		45A1903B160747A000BA4BFE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		45A19040160747D000BA4BFE /* DTCoreText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DTCoreText.xcodeproj; path = ../../DTCoreText/DTCoreText.xcodeproj; sourceTree = "<group>"; };
+		45A3AFF1160E54E900A7DCF0 /* DCCrossHairView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCCrossHairView.h; sourceTree = "<group>"; };
+		45A3AFF2160E54E900A7DCF0 /* DCCrossHairView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCCrossHairView.m; sourceTree = "<group>"; };
+		45A3AFF3160E54E900A7DCF0 /* DCFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCFrameView.h; sourceTree = "<group>"; };
+		45A3AFF4160E54E900A7DCF0 /* DCFrameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCFrameView.m; sourceTree = "<group>"; };
+		45A3AFF5160E54E900A7DCF0 /* DCIntrospect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCIntrospect.h; sourceTree = "<group>"; };
+		45A3AFF6160E54E900A7DCF0 /* DCIntrospect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCIntrospect.m; sourceTree = "<group>"; };
+		45A3AFF7160E54E900A7DCF0 /* DCIntrospectSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCIntrospectSettings.h; sourceTree = "<group>"; };
+		45A3AFF8160E54E900A7DCF0 /* DCStatusBarOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCStatusBarOverlay.h; sourceTree = "<group>"; };
+		45A3AFF9160E54E900A7DCF0 /* DCStatusBarOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCStatusBarOverlay.m; sourceTree = "<group>"; };
 		CE0288BF160B50B300CD7C1D /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		CE4D6201160B09D1009EF22D /* AFXMLDomRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFXMLDomRequestOperation.h; sourceTree = "<group>"; };
 		CE4D6202160B09D1009EF22D /* AFXMLDomRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLDomRequestOperation.m; sourceTree = "<group>"; };
@@ -1382,6 +1395,7 @@
 		45A18FBE160746F500BA4BFE /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				45A3AFF0160E54E900A7DCF0 /* DCIntrospect */,
 				45923F94160767D90027522C /* GData */,
 				45923EFF16075FE60027522C /* MGSplitViewController */,
 				45923EF416075AA30027522C /* JSONKit */,
@@ -1405,6 +1419,23 @@
 				45A19059160747D100BA4BFE /* libDTCoreText_no_DTFoundation.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		45A3AFF0160E54E900A7DCF0 /* DCIntrospect */ = {
+			isa = PBXGroup;
+			children = (
+				45A3AFF1160E54E900A7DCF0 /* DCCrossHairView.h */,
+				45A3AFF2160E54E900A7DCF0 /* DCCrossHairView.m */,
+				45A3AFF3160E54E900A7DCF0 /* DCFrameView.h */,
+				45A3AFF4160E54E900A7DCF0 /* DCFrameView.m */,
+				45A3AFF5160E54E900A7DCF0 /* DCIntrospect.h */,
+				45A3AFF6160E54E900A7DCF0 /* DCIntrospect.m */,
+				45A3AFF7160E54E900A7DCF0 /* DCIntrospectSettings.h */,
+				45A3AFF8160E54E900A7DCF0 /* DCStatusBarOverlay.h */,
+				45A3AFF9160E54E900A7DCF0 /* DCStatusBarOverlay.m */,
+			);
+			name = DCIntrospect;
+			path = ../../DCIntrospect/DCIntrospect;
 			sourceTree = "<group>";
 		};
 		CEC041E1160B347500482BA5 /* badge */ = {
@@ -1741,6 +1772,10 @@
 				459A4F6D160DC11000DD85F5 /* NIImageProcessing.m in Sources */,
 				459A4F6E160DC11000DD85F5 /* NINetworkImageView.m in Sources */,
 				459A4F75160DD60000DD85F5 /* NetworkDrawRectBlockCell.m in Sources */,
+				45A3AFFA160E54E900A7DCF0 /* DCCrossHairView.m in Sources */,
+				45A3AFFB160E54E900A7DCF0 /* DCFrameView.m in Sources */,
+				45A3AFFC160E54E900A7DCF0 /* DCIntrospect.m in Sources */,
+				45A3AFFD160E54E900A7DCF0 /* DCStatusBarOverlay.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,6 +14,8 @@
 #import "Utils.h"
 #import "NINetworkImageView.h"
 
+static const CGSize CGSizeZeroOne = {1,1};
+
 @interface FeedsViewController() <NINetworkImageViewDelegate> {
     NSCache* cellCache;
     NSMutableSet *mediaPlayers;
@@ -101,15 +103,19 @@
 - (void) setFeed:(Feed*)f
 {
     [cellCache removeAllObjects];
+    self.tableView.dataSource = nil;
+    self.mediaPlayers = nil;
     _feed = f;
     self.title = f.title;
     self.model = [[NITableViewModel alloc] initWithListArray:self.feed.items delegate:self];
     self.tableView.dataSource = self.model;
     [self.tableView reloadData];
+    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.tableView.allowsSelection = NO;
 }
 
 
@@ -297,17 +303,22 @@
         BOOL ok = NO;
         for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:predicate])
         {
-            ok = YES;
-            oneAttachment.originalSize = imageSize;
-            
-            if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
-            {
-                oneAttachment.displaySize = imageSize;
+            if(CGSizeEqualToSize(oneAttachment.originalSize , CGSizeZero)){
+                oneAttachment.originalSize = imageSize;
+                ok = YES;
+            }            
+            if(CGSizeEqualToSize(oneAttachment.displaySize , CGSizeZeroOne)){
+                if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
+                {
+                   oneAttachment.displaySize = imageSize;
+                    ok = YES;
+                }
             }
         }
         if(ok){
+            [self.tableView beginUpdates];
             [_textView relayoutText];
-            //   [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject: ip] withRowAnimation:UITableViewRowAnimationNone];
+            [self.tableView endUpdates];
         }
 //        [self.tableView reloadData];
     } afterDelay:0.001];

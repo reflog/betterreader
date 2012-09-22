@@ -10,11 +10,14 @@
 
 @implementation NetworkDrawRectBlockCell
 @synthesize networkImageView = _networkImageView;
+@synthesize badgeView = _badgeView;
+@synthesize imageSize = _imageSize;
+
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier])) {
         _networkImageView = [[NINetworkImageView alloc] init];
-        
+        _badgeView = [[NIBadgeView alloc] init];
         // We implement the delegate so that we know when the image has finished downloading.
         _networkImageView.delegate = self;
     }
@@ -28,9 +31,12 @@
 
 - (BOOL)shouldUpdateCellWithObject:(NIDrawRectBlockCellObject *)object {
     [super shouldUpdateCellWithObject:object];
-    NSString* url = [object.object valueForKey:@"url"];
-    CGSize size = CGSizeMake([[object.object valueForKey:@"width"] intValue], [[object.object valueForKey:@"height"] intValue]);
-    [self.networkImageView setPathToNetworkImage:url forDisplaySize:size];
+    id dict = object.object;
+    NSString* url = [dict valueForKey:@"url"];
+    self.imageSize = CGSizeMake([[dict valueForKey:@"width"] intValue], [[dict valueForKey:@"height"] intValue]);
+    self.badgeView.text = [[dict valueForKey:@"badgeValue"] stringValue];
+    [self.badgeView sizeToFit];
+    [self.networkImageView setPathToNetworkImage:url forDisplaySize:_imageSize];
     
     return YES;
 }
@@ -52,17 +58,18 @@
         }
         UIRectFill(rect);
         
-        NSString* text = object;
+        NSString* text = [object valueForKey:@"text"];
         [[UIColor blackColor] set];
         UIFont* titleFont = [UIFont boldSystemFontOfSize:16];
         NetworkDrawRectBlockCell* networkCell = (NetworkDrawRectBlockCell *)cell;
         
-        // Grab the image and then draw it on the cell. If there is no image yet then the draw method
-        // will do nothing.
         UIImage* image = networkCell.networkImageView.image;
-        [image drawAtPoint:CGPointMake(10, 5)];
-        [text drawAtPoint:CGPointMake(10 + image.size.width + 10, 5) withFont:titleFont];
-        
+        [image drawAtPoint:CGPointMake(10, 12)];
+        float textW = CGRectGetMaxX(cell.contentView.frame) - 20 - networkCell.imageSize.width - 10 - 5 - networkCell.badgeView.frame.size.width;
+        [text drawAtPoint:CGPointMake(10 + networkCell.imageSize.width + 10, 10) forWidth:textW withFont:titleFont lineBreakMode:UILineBreakModeTailTruncation];
+        CGContextTranslateCTM(UIGraphicsGetCurrentContext(), CGRectGetMaxX(cell.contentView.frame) - networkCell.badgeView.frame.size.width - 5, 5);
+        CGRect brect = CGRectMake(0, 0, networkCell.badgeView.frame.size.width, networkCell.badgeView.frame.size.height);
+        [networkCell.badgeView drawRect:brect];
         return 0;
     };
     return drawTextBlock;

@@ -7,8 +7,13 @@
 //
 
 #import "NimbusNetworkImage.h"
+#import "NIBadgeView.h"
 
 @interface NetworkDrawRectBlockCell : NIDrawRectBlockCell <NINetworkImageViewDelegate>
-@property (nonatomic, readwrite, retain) NINetworkImageView* networkImageView;
+@property (nonatomic, strong) NINetworkImageView* networkImageView;
+@property (nonatomic, strong) NIBadgeView *badgeView;
+
+@property(nonatomic) CGSize imageSize;
+
 + (NICellDrawRectBlock) block;
 @end

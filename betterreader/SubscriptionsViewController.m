@@ -21,41 +21,20 @@
 }
 @property(nonatomic,strong) NITableViewModel* model;
 @property (nonatomic, readwrite, retain) NITableViewActions* actions;
+@property (nonatomic, strong) NICellFactory * cellFactory;
 @end
 
 @implementation SubscriptionsViewController
 @synthesize model, actions;
 @synthesize feedsViewController = _feedsViewController;
-
-
-- (UITableViewCell *)tableViewModel: (NITableViewModel *)tableViewModel
-                   cellForTableView: (UITableView *)tableView
-                        atIndexPath: (NSIndexPath *)indexPath
-                         withObject: (id)object {
-    // A pretty standard implementation of creating table view cells follows.
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"row"];
-    
-    if (nil == cell) {
-        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault
-                                       reuseIdentifier: @"row"] ;
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        cell.accessoryView = [[NIBadgeView alloc] initWithFrame: CGRectZero];
-    }
-    Subscription * s = [object objectForKey:@"value"];
-    NIBadgeView *badgeView = (NIBadgeView *) cell.accessoryView;
-    badgeView.backgroundColor = [UIColor whiteColor];
-    badgeView.text = [NSString stringWithFormat:@"%d", s.unreadCount];;
-    [badgeView sizeToFit];
-    cell.textLabel.text = s.title;
-    
-    return cell;
-}
+@synthesize cellFactory = _cellFactory;
 
 
 - (void)buildSubscriptionModel
 {
     NITableViewActionBlock tapAction = ^BOOL(id object, UIViewController *controller) {
-        Subscription * s = [object objectForKey:@"value"];
+        NIDrawRectBlockCellObject* obj = object;
+        Subscription * s = [obj.object valueForKey:@"object"];
         [[ReaderAPI sharedInstance] fetchFeed:s withBlock:^(NSError *e) {
             //TODO: handle error
             if(!e){
@@ -67,13 +46,23 @@
 
     NICellDrawRectBlock drawCellBlock = [NetworkDrawRectBlockCell block];
     NSMutableArray* modelData = [NSMutableArray array];
+    NSNumber* favIconSize = [NSNumber numberWithInt:16];
     for (NSString* label in [[ReaderAPI sharedInstance].labels allKeys]) {
         [modelData addObject:[label isEqualToString:kUnlabeledItems] ? @"" : label];
         int c = 0;
         for(Subscription * s in [[ReaderAPI sharedInstance].labels valueForKey:label]){
-            if(s.unreadCount > 0 || !unreadOnly) {                
-                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:s.title,@"text",s.htmlUrl,@"url",16,@"width",16,@"height", s.unreadCount nil];
-                
+            if(s.unreadCount > 0 || !unreadOnly) {
+                NSString* host = [[NSURL URLWithString:s.htmlUrl ] host];
+                NSString* favurl = [NSString stringWithFormat:@"http://www.google.com/s2/favicons?domain=%@", 
+                                    host,  nil];
+                NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                        s.title, @"text",
+                        favurl, @"url",
+                        favIconSize, @"width",
+                        favIconSize, @"height",
+                        [NSNumber numberWithInt:s.unreadCount], @"badgeValue",
+                        s, @"object", nil];
+
                 [modelData addObject:[self.actions attachTapAction:tapAction toObject:[NIDrawRectBlockCellObject objectWithBlock:drawCellBlock object:dict]]];
                 c++;
             }
@@ -81,7 +70,10 @@
         if(c == 0)
             [modelData removeLastObject];
     }
-    self.model = [[NITableViewModel alloc] initWithSectionedArray:modelData delegate:self];
+    _cellFactory = [[NICellFactory alloc] init];
+    [_cellFactory mapObjectClass:[NIDrawRectBlockCellObject class]
+                     toCellClass:[NetworkDrawRectBlockCell class]];
+    self.model = [[NITableViewModel alloc] initWithSectionedArray:modelData delegate:_cellFactory];
     self.tableView.dataSource = self.model;
     [self.tableView reloadData];
 }
