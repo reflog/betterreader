@@ -12,6 +12,7 @@
 #import "NIBadgeView.h"
 #import "ReaderAPI.h"
 #import "FeedsViewController.h"
+#import "NetworkDrawRectBlockCell.h"
 
 @interface SubscriptionsViewController ()
 {
@@ -64,14 +65,16 @@
         return YES;
     };  
 
-    
+    NICellDrawRectBlock drawCellBlock = [NetworkDrawRectBlockCell block];
     NSMutableArray* modelData = [NSMutableArray array];
     for (NSString* label in [[ReaderAPI sharedInstance].labels allKeys]) {
         [modelData addObject:[label isEqualToString:kUnlabeledItems] ? @"" : label];
         int c = 0;
         for(Subscription * s in [[ReaderAPI sharedInstance].labels valueForKey:label]){
-            if(s.unreadCount > 0 || !unreadOnly) {
-                [modelData addObject:[self.actions attachTapAction:tapAction toObject:[NSDictionary dictionaryWithObject:s forKey:@"value"]]];
+            if(s.unreadCount > 0 || !unreadOnly) {                
+                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:s.title,@"text",s.htmlUrl,@"url",16,@"width",16,@"height", s.unreadCount nil];
+                
+                [modelData addObject:[self.actions attachTapAction:tapAction toObject:[NIDrawRectBlockCellObject objectWithBlock:drawCellBlock object:dict]]];
                 c++;
             }
         }

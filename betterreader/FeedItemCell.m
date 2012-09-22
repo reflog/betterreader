@@ -98,7 +98,6 @@
 
 - (void)layoutSubviews
 {
-	[super layoutSubviews];
 	
 	CGFloat neededContentHeight = [self requiredRowHeightInTableView:(UITableView *)self.superview];
 	
@@ -115,7 +114,7 @@
     star1Frame.origin.x = _titleView.frame.size.width + 10;
     _starBtn1.frame = star1Frame;
 
-    CGFloat bottomY =  neededContentHeight + topOffset + TITLE_SPACING;
+    CGFloat bottomY =  neededContentHeight - bottomOffset + 5;
 
     CGRect star2Frame = _starBtn2.frame;
     star2Frame.origin.y = bottomY;
@@ -141,6 +140,9 @@
 	{
 		_attributedTextContextView.frame = frame;
 	}
+    
+    [super layoutSubviews];
+
 }
 
 
@@ -154,7 +156,7 @@
     CGFloat bottomOffset =  _starBtn2.frame.size.height + TITLE_SPACING;
 	
 	// note: non-integer row heights caused trouble < iOS 5.0
-	return (int)(neededSize.height + topOffset + bottomOffset);
+	return (int)(neededSize.height + topOffset + bottomOffset );
 }
 
 #pragma mark Properties

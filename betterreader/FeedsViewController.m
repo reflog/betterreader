@@ -12,9 +12,9 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "FeedItemCell.h"
 #import "Utils.h"
+#import "NINetworkImageView.h"
 
-@interface FeedsViewController()
-{
+@interface FeedsViewController() <NINetworkImageViewDelegate> {
     NSCache* cellCache;
     NSMutableSet *mediaPlayers;
 }
@@ -234,16 +234,19 @@
 	}
 	else if (attachment.contentType == DTTextAttachmentTypeImage)
 	{
+        if(!attachment.contentURL) return nil;
 		// if the attachment has a hyperlinkURL then this is currently ignored
-		DTLazyImageView *imageView = [[DTLazyImageView alloc] initWithFrame:frame];
+        NINetworkImageView *imageView = [[NINetworkImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 		imageView.delegate = self;
 		if (attachment.contents)
 		{
 			imageView.image = attachment.contents;
 		}
+        [imageView associateValue:attributedTextContentView withKey:"cell"];
+        [imageView associateValue:attachment.contentURL withKey:"imageUrl"];
 		
 		// url for deferred loading
-		imageView.url = attachment.contentURL;
+        [imageView setPathToNetworkImage:[attachment.contentURL absoluteString] ];
 		
 		// if there is a hyperlink then add a link button on top of this image
 		if (attachment.hyperLinkURL)
@@ -284,6 +287,31 @@
 }
 
 #pragma mark DTLazyImageViewDelegate
+- (void)networkImageView:(NINetworkImageView *)imageView didLoadImage:(UIImage *)image
+{
+    [self performBlock:^(id sender) {
+        NSURL *url = [imageView associatedValueForKey:"imageUrl"];
+        CGSize imageSize = image.size;
+        DTAttributedTextContentView* _textView = [imageView associatedValueForKey:"cell"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
+        BOOL ok = NO;
+        for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:predicate])
+        {
+            ok = YES;
+            oneAttachment.originalSize = imageSize;
+            
+            if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
+            {
+                oneAttachment.displaySize = imageSize;
+            }
+        }
+        if(ok){
+            [_textView relayoutText];
+            //   [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject: ip] withRowAnimation:UITableViewRowAnimationNone];
+        }
+//        [self.tableView reloadData];
+    } afterDelay:0.001];
+}
 
 - (void)lazyImageView:(DTLazyImageView *)lazyImageView didChangeImageSize:(CGSize)size {
 	NSURL *url = lazyImageView.url;
