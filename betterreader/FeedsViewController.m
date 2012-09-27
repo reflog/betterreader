@@ -242,7 +242,8 @@ static const CGSize CGSizeZeroOne = {1,1};
 	{
         if(!attachment.contentURL) return nil;
 		// if the attachment has a hyperlinkURL then this is currently ignored
-        NINetworkImageView *imageView = [[NINetworkImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        NINetworkImageView *imageView = [[NINetworkImageView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
+        [imageView setSizeForDisplay:NO];
 		imageView.delegate = self;
 		if (attachment.contents)
 		{
@@ -320,38 +321,8 @@ static const CGSize CGSizeZeroOne = {1,1};
             [_textView relayoutText];
             [self.tableView endUpdates];
         }
-//        [self.tableView reloadData];
     } afterDelay:0.001];
 }
 
-- (void)lazyImageView:(DTLazyImageView *)lazyImageView didChangeImageSize:(CGSize)size {
-	NSURL *url = lazyImageView.url;
-	CGSize imageSize = size;
-	
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
-    
-	for (int i=0;i<[self.model tableView:self.tableView numberOfRowsInSection:0];i++){
-        NSIndexPath* ip = [NSIndexPath indexPathForRow:i inSection:0];
-        FeedItemCell* cell = [self tableView:self.tableView preparedCellForIndexPath:ip];
-        // update all attachments that matchin this URL (possibly multiple images with same size)
-        DTAttributedTextContentView* _textView = cell.attributedTextContextView;
-        BOOL ok = NO;
-        for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:predicate])
-        {
-            ok = YES;
-            oneAttachment.originalSize = imageSize;
-            
-            if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
-            {
-                oneAttachment.displaySize = imageSize;
-            }
-        }
-        if(ok){
-            [_textView relayoutText];
-         //   [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject: ip] withRowAnimation:UITableViewRowAnimationNone];
-        }
-    }
-    [self.tableView reloadData];
-}
 
 @end

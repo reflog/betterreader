@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface ItemContent : NSObject {
-    NSString *content;
-    BOOL direction;
 }
 
 @property (nonatomic, copy) NSString *content;

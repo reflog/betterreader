@@ -10,9 +10,6 @@
 
 @implementation ItemContent
 
-@synthesize content;
-@synthesize direction;
-
 + (ItemContent *)instanceFromDictionary:(NSDictionary *)aDictionary
 {
 

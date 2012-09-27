@@ -238,6 +238,7 @@
 		CE4D6203160B09D1009EF22D /* AFXMLDomRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CE4D6202160B09D1009EF22D /* AFXMLDomRequestOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		CEC041E0160B33EE00482BA5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC041DF160B33EE00482BA5 /* Utils.m */; };
 		CEC041E5160B348200482BA5 /* NIBadgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC041E3160B348200482BA5 /* NIBadgeView.m */; };
+		ECA8821716149134002DEBB2 /* StarView.m in Sources */ = {isa = PBXBuildFile; fileRef = ECA8821616149134002DEBB2 /* StarView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -723,6 +724,8 @@
 		CEC041E2160B348200482BA5 /* NIBadgeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NIBadgeView.h; path = ../../nimbus/src/badge/src/NIBadgeView.h; sourceTree = "<group>"; };
 		CEC041E3160B348200482BA5 /* NIBadgeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NIBadgeView.m; path = ../../nimbus/src/badge/src/NIBadgeView.m; sourceTree = "<group>"; };
 		CEC041E4160B348200482BA5 /* NimbusBadge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NimbusBadge.h; path = ../../nimbus/src/badge/src/NimbusBadge.h; sourceTree = "<group>"; };
+		ECA8821516149133002DEBB2 /* StarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StarView.h; sourceTree = "<group>"; };
+		ECA8821616149134002DEBB2 /* StarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StarView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1318,6 +1321,8 @@
 				285FE3619C5D778E399BD567 /* Reader */,
 				459A4F73160DD60000DD85F5 /* NetworkDrawRectBlockCell.h */,
 				459A4F74160DD60000DD85F5 /* NetworkDrawRectBlockCell.m */,
+				ECA8821516149133002DEBB2 /* StarView.h */,
+				ECA8821616149134002DEBB2 /* StarView.m */,
 			);
 			path = betterreader;
 			sourceTree = "<group>";
@@ -1776,6 +1781,7 @@
 				45A3AFFB160E54E900A7DCF0 /* DCFrameView.m in Sources */,
 				45A3AFFC160E54E900A7DCF0 /* DCIntrospect.m in Sources */,
 				45A3AFFD160E54E900A7DCF0 /* DCStatusBarOverlay.m in Sources */,
+				ECA8821716149134002DEBB2 /* StarView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

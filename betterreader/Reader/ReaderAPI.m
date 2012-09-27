@@ -1,5 +1,4 @@
 #import "ReaderAPI.h"
-#import "GTMOAuth2ViewControllerTouch.h"
 #import "OAuth2Secrets.h"
 #import "Subscription.h"
 #import "AFXMLDomRequestOperation.h"
@@ -16,8 +15,6 @@
 @end
 
 @implementation ReaderAPI
-
-@synthesize authentication, feeds, labels, userId;
 
 - (id)init {
     self = [super init];
@@ -87,11 +84,11 @@
 - (void)fetchUnreadCountsWithBlock:(operation_block_t)block
 {
     [self performJSONFetchUrl:kUnreadCountsUrl withBlock:block withProcessBlock:^(id data) {
-        for(NSDictionary* unreadCount in [data valueForKey:@"unreadcounts"]){
-                Subscription* s = [self.feeds valueForKey: [unreadCount valueForKey:@"id"]];
+        for(NSDictionary* unreadCount in data[@"unreadcounts"]){
+                Subscription* s = self.feeds[unreadCount[@"id"]];
                 if(s){
-                    s.unreadCount = [[unreadCount valueForKey:@"count"] intValue];
-                    s.newestItemTimestampUsec = [[unreadCount valueForKey:@"newestItemTimestampUsec"] longLongValue];
+                    s.unreadCount = [unreadCount[@"count"] intValue];
+                    s.newestItemTimestampUsec = [unreadCount[@"newestItemTimestampUsec"] longLongValue];
                 }
             }
     }];
@@ -133,15 +130,15 @@
 {
     NSMutableDictionary* fds = [NSMutableDictionary dictionary];
     NSMutableDictionary* lbls = [NSMutableDictionary dictionary];
-    for(id zz in [[document.rootElement.children objectAtIndex:0] children]){
+    for(id zz in [document.rootElement.children [0] children]){
         Subscription * su = [[Subscription alloc] initWithNode: zz];
         [fds setValue:su forKey:su.subscribtionId];
         NSArray *curLabels = su.labels.count > 0 ? su.labels : [NSArray arrayWithObject:kUnlabeledItems];
         for (NSString* l in curLabels) {
-            NSMutableArray* lfeeds = [lbls valueForKey:l];
+            NSMutableArray* lfeeds = lbls[l];
             if (!lfeeds) {
                 lfeeds = [NSMutableArray array];
-                [lbls setValue:lfeeds forKey:l];
+                lbls[l] = lfeeds;
             }
             [lfeeds addObject:su];
         }
@@ -150,13 +147,13 @@
     self.labels = lbls;
 }
 
-- (UIViewController *)authenticateWithBlock:(auth_block_t)block {
+- (GTMOAuth2ViewControllerTouch *)authenticateWithBlock:(auth_block_t)block {
     __block ReaderAPI* me = self;
     GTMOAuth2ViewControllerTouch *viewController = [GTMOAuth2ViewControllerTouch controllerWithScope:kAuthScope clientID:kClientID clientSecret:kClientSecret keychainItemName:kKeychainItemName
     completionHandler:^(GTMOAuth2ViewControllerTouch *viewController, GTMOAuth2Authentication *auth, NSError *error) {
         me.authentication = auth;
         if(error){
-            block(YES, [error code] == kGTMOAuth2ErrorWindowClosed);
+            block(NO, [error code] == kGTMOAuth2ErrorWindowClosed);
         }else {
             [me performJSONFetchUrl:kUserInfoUrl withBlock:^(NSError *error) {
                 block(error == nil, NO);

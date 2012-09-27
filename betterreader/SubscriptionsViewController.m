@@ -13,6 +13,7 @@
 #import "ReaderAPI.h"
 #import "FeedsViewController.h"
 #import "NetworkDrawRectBlockCell.h"
+#import "AppDelegate.h"
 
 @interface SubscriptionsViewController ()
 {
@@ -107,17 +108,28 @@
 }
 
 - (void)authenticateTry {
-    [[self navigationController] pushViewController:[[ReaderAPI sharedInstance] authenticateWithBlock:^(BOOL success, BOOL closed) {
-            if(closed || !success){
-                NSString* msg = closed ? NSLocalizedString(@"Cannot continue without logging in. Please try again!", nil) : NSLocalizedString(@"Invalid credentials!", nil);
-                UIAlertView *alert = [UIAlertView alertViewWithTitle:NSLocalizedString(@"Error", nil) message:msg];
-                [alert setCancelButtonWithTitle:NSLocalizedString(@"OK", nil) handler:^{
-                    [self authenticateTry];
-                }];
-            } else {
-                [[ReaderAPI sharedInstance] fetchSubscriptionsWithBlock:subscriptionFetchResultBlock];
-            }
-        }] animated:YES];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    GTMOAuth2ViewControllerTouch *authController = [[ReaderAPI sharedInstance] authenticateWithBlock:^(BOOL success, BOOL closed) {
+        if(closed || !success){
+            NSString* msg = NSLocalizedString(@"Cannot continue without signing in. Please try again!", nil);
+            UIAlertView *alert = [UIAlertView alertViewWithTitle:NSLocalizedString(@"Error", nil) message:msg];
+            [alert setCancelButtonWithTitle:NSLocalizedString(@"OK", nil) handler:^{
+                [self authenticateTry];
+            }];
+            [alert show];
+        } else {
+            [[ReaderAPI sharedInstance] fetchSubscriptionsWithBlock:subscriptionFetchResultBlock];
+        }
+    }];
+    authController.title = NSLocalizedString(@"BetterReader Sign in", nil);
+    authController.popViewBlock = ^(){
+        [appDelegate.splitViewController dismissModalViewControllerAnimated:YES];
+    };
+
+    UINavigationController *authNavigationController = [[UINavigationController alloc] initWithRootViewController:authController];
+    authNavigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [appDelegate.splitViewController  presentModalViewController:authNavigationController animated:YES];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {

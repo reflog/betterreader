@@ -7,18 +7,10 @@
 //
 
 #import "Feed.h"
-
 #import "Item.h"
 
 @implementation Feed
 
-@synthesize continuation;
-@synthesize descriptionText;
-@synthesize direction;
-@synthesize feedId;
-@synthesize items;
-@synthesize title;
-@synthesize updated;
 
 + (Feed *)instanceFromDictionary:(NSDictionary *)aDictionary
 {
