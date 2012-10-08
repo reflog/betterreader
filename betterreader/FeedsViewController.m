@@ -13,13 +13,16 @@
 #import "FeedItemCell.h"
 #import "Utils.h"
 #import "NINetworkImageView.h"
-
+#import "NICellBackgrounds.h"
+#import "DYFloatingHeaderView.h"
 static const CGSize CGSizeZeroOne = {1,1};
 
 @interface FeedsViewController() <NINetworkImageViewDelegate> {
     NSCache* cellCache;
     NSMutableSet *mediaPlayers;
+    NIGroupedCellBackground* cellBg;
 }
+
 @property(nonatomic,strong) NITableViewModel* model;
 @property (nonatomic, strong) NSMutableSet *mediaPlayers;
 
@@ -88,6 +91,10 @@ static const CGSize CGSizeZeroOne = {1,1};
 	
 	return cell;
 }
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    return [self initWithStyle:UITableViewStyleGrouped
+        activityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+}
 
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     return [self tableView:tableView preparedCellForIndexPath:indexPath];
@@ -107,7 +114,12 @@ static const CGSize CGSizeZeroOne = {1,1};
     self.mediaPlayers = nil;
     _feed = f;
     self.title = f.title;
-    self.model = [[NITableViewModel alloc] initWithListArray:self.feed.items delegate:self];
+    NSMutableArray* feed_items = [NSMutableArray array];
+    for (Item* i in self.feed.items) {
+        [feed_items addObject:@""];
+        [feed_items addObject:i];
+    }
+    self.model = [[NITableViewModel alloc] initWithSectionedArray:feed_items delegate:self];
     self.tableView.dataSource = self.model;
     [self.tableView reloadData];
     [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
@@ -115,9 +127,22 @@ static const CGSize CGSizeZeroOne = {1,1};
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    FeedViewToolbar *floatingHeader = [[FeedViewToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, [FeedViewToolbar height])];
+    [self.view addSubview:floatingHeader];
+    
+    CGRect tableFrame = self.tableView.frame;
+    tableFrame.origin.y += [DYFloatingHeaderView height];
+    tableFrame.size.height -= [DYFloatingHeaderView height];
+    self.tableView.frame = tableFrame;
+    cellBg = [[NIGroupedCellBackground alloc]init];
+    //cellBg.
     self.tableView.allowsSelection = NO;
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [cellBg tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+}
 
 
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttributedString:(NSAttributedString *)string frame:(CGRect)frame
@@ -249,6 +274,7 @@ static const CGSize CGSizeZeroOne = {1,1};
 		{
 			imageView.image = attachment.contents;
 		}
+        imageView.contentMode = UIViewContentModeScaleAspectFit;
         [imageView associateValue:attributedTextContentView withKey:"cell"];
         [imageView associateValue:attachment.contentURL withKey:"imageUrl"];
 		
@@ -302,16 +328,24 @@ static const CGSize CGSizeZeroOne = {1,1};
         DTAttributedTextContentView* _textView = [imageView associatedValueForKey:"cell"];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
         BOOL ok = NO;
+        CGRect iframe = imageView.frame;
+        iframe.size = imageSize;
         for (DTTextAttachment *oneAttachment in [_textView.layoutFrame textAttachmentsWithPredicate:predicate])
         {
+            CGSize iSize = imageSize;
+            if(CGRectGetMaxX(iframe) > CGRectGetMaxX(_textView.frame)){
+                iSize.width -= (CGRectGetMaxX(iframe) - CGRectGetMaxX(_textView.frame) - 5);
+                iframe.size.width = iSize.width;
+                imageView.frame = iframe;
+            }
             if(CGSizeEqualToSize(oneAttachment.originalSize , CGSizeZero)){
-                oneAttachment.originalSize = imageSize;
+                oneAttachment.originalSize = iSize;
                 ok = YES;
-            }            
+            }
             if(CGSizeEqualToSize(oneAttachment.displaySize , CGSizeZeroOne)){
-                if (!CGSizeEqualToSize(imageSize, oneAttachment.displaySize))
+                if (!CGSizeEqualToSize(iSize, oneAttachment.displaySize))
                 {
-                   oneAttachment.displaySize = imageSize;
+                    oneAttachment.displaySize = iSize;
                     ok = YES;
                 }
             }
@@ -321,8 +355,40 @@ static const CGSize CGSizeZeroOne = {1,1};
             [_textView relayoutText];
             [self.tableView endUpdates];
         }
+        //        [self.tableView reloadData];
     } afterDelay:0.001];
 }
 
+- (void)refreshClicked {
+
+}
+
+- (void)viewModeChanged:(BOOL)showAll {
+
+}
+
+- (void)displayModeChanged:(BOOL)showList {
+
+}
+
+- (void)nextFeedItemClicked {
+
+}
+
+- (void)prevFeedItemClicked {
+
+}
+
+- (void)sortModeChanged:(SortMode)mode {
+
+}
+
+- (void)unsubscribeClicked {
+
+}
+
+- (void)renameClicked {
+
+}
 
 @end

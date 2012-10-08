@@ -14,6 +14,8 @@
 #import "FeedsViewController.h"
 #import "NetworkDrawRectBlockCell.h"
 #import "AppDelegate.h"
+#import "NimbusCore.h"
+#import "NimbusModels.h"
 
 @interface SubscriptionsViewController ()
 {

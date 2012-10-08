@@ -7,11 +7,14 @@
 
 #import <Foundation/Foundation.h>
 #import "NINetworkTableViewController.h"
+#import "NimbusCore.h"
+#import "NimbusModels.h"
+#import "FeedViewToolbar.h"
 
 @class Feed;
 
 @interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate,
-                                DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate>
+                                DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate, FeedViewToolbarDelegate>
 
 @property (nonatomic, strong) Feed* feed;
 
