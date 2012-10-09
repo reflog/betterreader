@@ -16,6 +16,15 @@
 #pragma mark -
 #pragma mark Setup and teardown
 
+- (void) toggleSplitVisible:(UITapGestureRecognizer*)sender{
+    if (sender.state != UIGestureRecognizerStateEnded) return;
+       if(splitViewController.splitPosition == 0)
+        splitViewController.splitPosition = 200; // TODO: make this proportion of screen
+    else
+        splitViewController.splitPosition = 0 ;
+
+
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -23,6 +32,11 @@
 		self.userInteractionEnabled = NO;
 		self.allowsDragging = NO;
 		self.contentMode = UIViewContentModeRedraw;
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(toggleSplitVisible:)];
+        tap.numberOfTapsRequired = 2;
+        tap.cancelsTouchesInView = YES;
+        [self addGestureRecognizer:tap];
+
 	}
 	return self;
 }

@@ -22,6 +22,7 @@
     operation_block_t subscriptionFetchResultBlock;
     BOOL unreadOnly;
 }
+@property(nonatomic,strong) UITableView* tableView;
 @property(nonatomic,strong) NITableViewModel* model;
 @property (nonatomic, readwrite, retain) NITableViewActions* actions;
 @property (nonatomic, strong) NICellFactory * cellFactory;
@@ -38,10 +39,12 @@
     NITableViewActionBlock tapAction = ^BOOL(id object, UIViewController *controller) {
         NIDrawRectBlockCellObject* obj = object;
         Subscription * s = [obj.object valueForKey:@"object"];
+        [self.feedsViewController setLoadingFeed:YES];
         [[ReaderAPI sharedInstance] fetchFeed:s withBlock:^(NSError *e) {
             //TODO: handle error
             if(!e){
                 self.feedsViewController.feed = s.feed;
+                [self.feedsViewController setLoadingFeed:NO];
             }
         } unreadOnly:unreadOnly];
         return YES;
@@ -66,7 +69,7 @@
                         [NSNumber numberWithInt:s.unreadCount], @"badgeValue",
                         s, @"object", nil];
 
-                [modelData addObject:[self.actions attachTapAction:tapAction toObject:[NIDrawRectBlockCellObject objectWithBlock:drawCellBlock object:dict]]];
+                [modelData addObject:[self.actions attachNavigationAction:tapAction toObject:[NIDrawRectBlockCellObject objectWithBlock:drawCellBlock object:dict]]];
                 c++;
             }
         }
@@ -81,6 +84,20 @@
     [self.tableView reloadData];
 }
 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [self initWithTitle:NSLocalizedString(@"Please wait", nil) subtitle:NSLocalizedString(@"Loading your subscriptions...", nil) image:TKEmptyViewImageStopwatch];
+    if (self) {
+        self.tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+        [self.view addSubview:self.tableView];
+        [self.view sendSubviewToBack:self.tableView];
+        self.actions = [[NITableViewActions alloc] initWithController:self];
+    }
+    return self;
+}
+- (void) viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.tableView.frame = self.view.frame;
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -95,12 +112,11 @@
     __block id me = self;
     subscriptionFetchResultBlock = ^(NSError *error) {
         //TODO: errors?
-        [me setIsLoading:NO];
+        [me setLoading:NO];
 
         [me buildSubscriptionModel];
     };
-    [self setIsLoading:YES];
-    self.actions = [[NITableViewActions alloc] initWithController:self];
+    [self setLoading:YES];
     self.tableView.delegate = self.actions;
 
     if([[ReaderAPI sharedInstance] requiresAuthentication])

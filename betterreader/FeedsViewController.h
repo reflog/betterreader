@@ -6,16 +6,17 @@
 
 
 #import <Foundation/Foundation.h>
-#import "NINetworkTableViewController.h"
 #import "NimbusCore.h"
 #import "NimbusModels.h"
 #import "FeedViewToolbar.h"
+#import "LoadingViewController.h"
 
 @class Feed;
 
-@interface FeedsViewController : NINetworkTableViewController<NITableViewModelDelegate,
+@interface FeedsViewController : LoadingViewController<NITableViewModelDelegate,
                                 DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate, FeedViewToolbarDelegate>
 
 @property (nonatomic, strong) Feed* feed;
+- (void)setLoadingFeed:(BOOL)loading;
 
 @end

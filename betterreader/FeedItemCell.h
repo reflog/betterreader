@@ -7,15 +7,18 @@
 //
 
 #import "Item.h"
-
-@interface FeedItemCell : UITableViewCell
-
-@property (nonatomic, strong) NSAttributedString *attributedString;
-@property (nonatomic, readonly) Item* item;
-@property (nonatomic, readonly) DTAttributedTextContentView *attributedTextContextView;
-
-- (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item;
-- (void)setHTMLString:(NSString *)html;
+@interface IFeedItemCell : UITableViewCell
 - (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView;
+- (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item;
++ (IFeedItemCell*) cellWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item listView:(BOOL)listView;
+@property (nonatomic, strong) Item* item;
+@end
 
+@interface FullFeedItemCell : IFeedItemCell
+@property (nonatomic, strong) NSAttributedString *attributedString;
+@property (nonatomic, readonly) DTAttributedTextContentView *attributedTextContextView;
+- (void)setHTMLString:(NSString *)html;
+@end
+
+@interface ListFeedItemCell : IFeedItemCell
 @end

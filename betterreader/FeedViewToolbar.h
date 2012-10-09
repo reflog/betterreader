@@ -6,7 +6,6 @@
 //
 //
 
-#import "DYFloatingHeaderView.h"
 typedef enum {
     SORT_MODE_ASC,
     SORT_MODE_DES,
@@ -24,7 +23,7 @@ typedef enum {
 - (void) renameClicked;
 @end
 
-@interface FeedViewToolbar : DYFloatingHeaderView
+@interface FeedViewToolbar : UIToolbar
 
 @property(nonatomic,weak) id<FeedViewToolbarDelegate> delegate;
 @end

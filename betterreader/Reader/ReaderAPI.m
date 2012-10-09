@@ -1,3 +1,6 @@
+//#define REQ_DEBUG
+
+
 #import "ReaderAPI.h"
 #import "OAuth2Secrets.h"
 #import "Subscription.h"
@@ -58,6 +61,15 @@
         {
             block(error);
         }else{
+#ifdef REQ_DEBUG
+            dispatch_async(dispatch_get_main_queue(), ^(void) {
+                NSData* d = [NSData dataWithContentsOfFile: [[NSBundle mainBundle] pathForResource:[furl rangeOfString:@"unread-count"].length>0 ?@"req2":@"req3" ofType:@""]];
+                
+                json_process([NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingAllowFragments error:nil]);
+                block(nil);
+            });
+            return;
+#endif
             AFJSONRequestOperation* operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request
                     success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
                         NSLog(@"%@",descriptionForRequest(request));

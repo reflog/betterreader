@@ -4,7 +4,6 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 #import "GTMOAuth2ViewControllerTouch.h"
-
 @class Subscription;
 
 typedef void (^auth_block_t)(BOOL success, BOOL closed);

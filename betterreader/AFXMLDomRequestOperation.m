@@ -18,13 +18,23 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 @implementation AFXMLDomRequestOperation
 @synthesize responseXMLDocument = _responseXMLDocument;
 @synthesize XMLError = _XMLError;
+//#define REQ_DEBUG
 
 
 + (AFXMLDomRequestOperation *)XMLDocumentRequestOperationWithRequest:(NSURLRequest *)urlRequest
                                                           success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, GDataXMLDocument *document))success
                                                           failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, GDataXMLDocument *document))failure
 {
-    AFXMLDomRequestOperation *requestOperation = [[[self alloc] initWithRequest:urlRequest] autorelease];
+#ifdef REQ_DEBUG
+    dispatch_async(xml_request_operation_processing_queue(), ^(void) {
+        NSString *filePath = [[NSBundle mainBundle] pathForResource:@"req1" ofType:@""];
+        NSData* d = [NSData dataWithContentsOfFile: filePath];
+        
+        success(nil,nil, [[GDataXMLDocument alloc] initWithData:d options:0 error:NULL] );
+    });
+    return nil;
+#endif
+    AFXMLDomRequestOperation *requestOperation = [[self alloc] initWithRequest:urlRequest] ;
     [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, __unused id responseObject) {
         if (success) {
             GDataXMLDocument *XMLDocument = [(AFXMLDomRequestOperation *)operation responseXMLDocument];   
@@ -42,16 +52,10 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 }
 
 
-- (void)dealloc {
-    [_responseXMLDocument release];
-    [_XMLError release];
-    
-    [super dealloc];
-}
 - (GDataXMLDocument *)responseXMLDocument {
     if (!_responseXMLDocument && [self.responseData length] > 0 && [self isFinished]) {
         NSError *error = nil;
-        self.responseXMLDocument = [[[GDataXMLDocument alloc] initWithData:self.responseData options:0 error:&error] autorelease];
+        self.responseXMLDocument = [[GDataXMLDocument alloc] initWithData:self.responseData options:0 error:&error] ;
         self.XMLError = error;
     }
     
@@ -80,23 +84,24 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 - (void)setCompletionBlockWithSuccess:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
                               failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure
 {
+    __block AFXMLDomRequestOperation* this = self;
     self.completionBlock = ^ {
-        if ([self isCancelled]) {
+        if ([this isCancelled]) {
             return;
         }
         
         dispatch_async(xml_request_operation_processing_queue(), ^(void) {
             
-            if (self.error) {
+            if (this.error) {
                 if (failure) {
-                    dispatch_async(self.failureCallbackQueue ? self.failureCallbackQueue : dispatch_get_main_queue(), ^{
-                        failure(self, self.error);
+                    dispatch_async(this.failureCallbackQueue ? this.failureCallbackQueue : dispatch_get_main_queue(), ^{
+                        failure(this, this.error);
                     });
                 }
             } else {
                 if (success) {
-                    dispatch_async(self.successCallbackQueue ? self.successCallbackQueue : dispatch_get_main_queue(), ^{
-                        success(self, [self responseXMLDocument]);
+                    dispatch_async(this.successCallbackQueue ? this.successCallbackQueue : dispatch_get_main_queue(), ^{
+                        success(this, [this responseXMLDocument]);
                     });
                 } 
             }

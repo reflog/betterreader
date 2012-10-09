@@ -14,24 +14,27 @@
 #import "Utils.h"
 #import "NINetworkImageView.h"
 #import "NICellBackgrounds.h"
-#import "DYFloatingHeaderView.h"
+
 static const CGSize CGSizeZeroOne = {1,1};
 
 @interface FeedsViewController() <NINetworkImageViewDelegate> {
     NSCache* cellCache;
-    NSMutableSet *mediaPlayers;
     NIGroupedCellBackground* cellBg;
+    BOOL showAsList;
 }
 
 @property(nonatomic,strong) NITableViewModel* model;
 @property (nonatomic, strong) NSMutableSet *mediaPlayers;
-
+@property(nonatomic,strong) FeedViewToolbar *toolbar;
+@property(nonatomic,strong) UITableView* tableViewList;
+@property(nonatomic,strong) UITableView* tableViewFull;
+@property(readonly) UITableView* currentTableView;
 @end
 
 @implementation FeedsViewController
-@synthesize feed = _feed;
-@synthesize model, mediaPlayers;
-
+- (UITableView*)currentTableView {
+    return showAsList ? self.tableViewList : self.tableViewFull;
+}
 - (void)viewWillDisappear:(BOOL)animated;
 {
 	// stop all playing media
@@ -70,7 +73,7 @@ static const CGSize CGSizeZeroOne = {1,1};
 	}
 }
 
-- (FeedItemCell *)tableView:(UITableView *)tableView preparedCellForIndexPath:(NSIndexPath *)indexPath
+- (IFeedItemCell *)tableView:(UITableView *)tableView preparedCellForIndexPath:(NSIndexPath *)indexPath
 {
 	static NSString *cellIdentifier = @"cellIdentifier";    
 	if (!cellCache)
@@ -78,22 +81,57 @@ static const CGSize CGSizeZeroOne = {1,1};
 	
     Item *item = [self.model objectAtIndexPath:indexPath];
 	// workaround for iOS 5 bug
-	NSString *key = [NSString stringWithFormat:@"%d-%d", indexPath.section, indexPath.row];	
-	FeedItemCell *cell = [cellCache objectForKey:key];    
+	NSString *key = [NSString stringWithFormat:@"%d-%d-%d", indexPath.section, indexPath.row, showAsList?0:1];
+	IFeedItemCell *cell = [cellCache objectForKey:key];
+    
 	if (!cell)
 	{
-        cell = [[FeedItemCell alloc] initWithReuseIdentifier:cellIdentifier item:item];
-        cell.attributedTextContextView.shouldDrawImages = YES;
-        cell.attributedTextContextView.delegate = self;
-        cell.attributedTextContextView.shouldDrawLinks = NO;
+        cell = [IFeedItemCell cellWithReuseIdentifier:cellIdentifier item:item listView:showAsList];
+        if(!showAsList){
+            ((FullFeedItemCell*)cell).attributedTextContextView.delegate = self;
+        }
 		[cellCache setObject:cell forKey:key];
 	}
 	
 	return cell;
 }
+
+- (void)setLoadingFeed:(BOOL)loading
+{
+    [super setLoading:loading];
+    if(loading){
+        self.emptyView.titleLabel.text = NSLocalizedString(@"Please wait", nil);
+        self.emptyView.subtitleLabel.text = NSLocalizedString(@"Loading your feed...", nil);
+        [self.emptyView setEmptyImage:TKEmptyViewImageStopwatch];
+    }
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    return [self initWithStyle:UITableViewStyleGrouped
-        activityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self = [self initWithTitle:NSLocalizedString(@"Welcome to Better Reader", nil) subtitle:NSLocalizedString(@"Please pick a feed on your left", nil) image:TKEmptyViewImageStar];
+    if (self) {
+        showAsList = NO; //TODO: make persistent
+        self.toolbar = [[FeedViewToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
+        self.toolbar.delegate = self;
+        CGRect tableFrame = CGRectMake(0, 40, self.view.bounds.size.width, self.view.bounds.size.height - 40);
+        self.tableViewFull = [[UITableView alloc]initWithFrame:tableFrame style:UITableViewStyleGrouped];
+        self.tableViewList = [[UITableView alloc]initWithFrame:tableFrame style:UITableViewStylePlain];
+        cellBg = [[NIGroupedCellBackground alloc]init];
+        self.tableViewList.allowsSelection = NO;
+        self.tableViewFull.allowsSelection = NO;
+        self.tableViewFull.delegate = self;
+        self.tableViewList.delegate = self;
+        [self.view addSubview:self.toolbar];
+        if(showAsList)
+            [self.view addSubview:self.tableViewList];
+        else
+            [self.view addSubview:self.tableViewFull];
+        [self setLoading:YES];
+        self.title = NSLocalizedString(@"Better Reader", nil);
+
+        
+    }
+    return self;
+    
 }
 
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
@@ -102,7 +140,7 @@ static const CGSize CGSizeZeroOne = {1,1};
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	FeedItemCell *cell = [self tableView:tableView preparedCellForIndexPath:indexPath];
+	IFeedItemCell *cell = [self tableView:tableView preparedCellForIndexPath:indexPath];
     
 	return [cell requiredRowHeightInTableView:tableView];
 }
@@ -110,7 +148,8 @@ static const CGSize CGSizeZeroOne = {1,1};
 - (void) setFeed:(Feed*)f
 {
     [cellCache removeAllObjects];
-    self.tableView.dataSource = nil;
+    self.tableViewList.dataSource = nil;
+    self.tableViewFull.dataSource = nil;
     self.mediaPlayers = nil;
     _feed = f;
     self.title = f.title;
@@ -120,23 +159,20 @@ static const CGSize CGSizeZeroOne = {1,1};
         [feed_items addObject:i];
     }
     self.model = [[NITableViewModel alloc] initWithSectionedArray:feed_items delegate:self];
-    self.tableView.dataSource = self.model;
-    [self.tableView reloadData];
-    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    self.tableViewList.dataSource = self.model;
+    [self.tableViewList reloadData];
+    [self.tableViewList scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    self.tableViewFull.dataSource = self.model;
+    [self.tableViewFull reloadData];
+    [self.tableViewFull scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    FeedViewToolbar *floatingHeader = [[FeedViewToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, [FeedViewToolbar height])];
-    [self.view addSubview:floatingHeader];
-    
-    CGRect tableFrame = self.tableView.frame;
-    tableFrame.origin.y += [DYFloatingHeaderView height];
-    tableFrame.size.height -= [DYFloatingHeaderView height];
-    self.tableView.frame = tableFrame;
-    cellBg = [[NIGroupedCellBackground alloc]init];
-    //cellBg.
-    self.tableView.allowsSelection = NO;
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    CGRect f = CGRectMake(0, 0, self.view.bounds.size.width, 40);
+    CGRect tableFrame = CGRectMake(0, 40, self.view.bounds.size.width, self.view.bounds.size.height-40);
+    self.toolbar.frame = f;
+    self.tableViewFull.frame = tableFrame;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -305,15 +341,6 @@ static const CGSize CGSizeZeroOne = {1,1};
 	}
 	else if (attachment.contentType == DTTextAttachmentTypeObject)
 	{
-		// somecolorparameter has a HTML color
-		UIColor *someColor = [UIColor colorWithHTMLName:[attachment.attributes objectForKey:@"somecolorparameter"]];
-		
-		UIView *someView = [[UIView alloc] initWithFrame:frame];
-		someView.backgroundColor = someColor;
-		someView.layer.borderWidth = 1;
-		someView.layer.borderColor = [UIColor blackColor].CGColor;
-		
-		return someView;
 	}
 	
 	return nil;
@@ -351,9 +378,9 @@ static const CGSize CGSizeZeroOne = {1,1};
             }
         }
         if(ok){
-            [self.tableView beginUpdates];
+            [self.currentTableView beginUpdates];
             [_textView relayoutText];
-            [self.tableView endUpdates];
+            [self.currentTableView endUpdates];
         }
         //        [self.tableView reloadData];
     } afterDelay:0.001];
@@ -368,14 +395,27 @@ static const CGSize CGSizeZeroOne = {1,1};
 }
 
 - (void)displayModeChanged:(BOOL)showList {
-
+    __block NSIndexPath* curpath = self.currentTableView.indexPathsForVisibleRows[0];
+    UIView* fromv = self.currentTableView;
+    showAsList = showList;
+    [self.currentTableView reloadData];
+    [UIView transitionFromView:fromv toView:self.currentTableView duration:1.0 options:UIViewAnimationOptionTransitionCrossDissolve completion:^(BOOL finished) {
+        [self.currentTableView scrollToRowAtIndexPath:curpath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+    }];
 }
 
 - (void)nextFeedItemClicked {
-
+    NSIndexPath*ipold = [self.currentTableView indexPathsForVisibleRows][0];
+    if(ipold.section+1 >= [self.currentTableView numberOfSections]) return;
+    NSIndexPath*ip = [NSIndexPath indexPathForRow:0 inSection:ipold.section+1];
+    [self.currentTableView scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)prevFeedItemClicked {
+    NSIndexPath*ipold = [self.currentTableView indexPathsForVisibleRows][0];
+    if(ipold.section-1 < 0) return;
+    NSIndexPath*ip = [NSIndexPath indexPathForRow:0 inSection:ipold.section-1];
+    [self.currentTableView scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:YES];
 
 }
 
@@ -390,5 +430,8 @@ static const CGSize CGSizeZeroOne = {1,1};
 - (void)renameClicked {
 
 }
+
+
+
 
 @end

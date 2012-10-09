@@ -12,7 +12,33 @@
 #import "DTCSSStylesheet.h"
 #import "Utils.h"
 
-@interface FeedItemCell ()
+@implementation IFeedItemCell
+
+- (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView { return 0; }
+- (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item { return nil; }
+
+
++ (IFeedItemCell*) cellWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item listView:(BOOL)listView
+{
+    return listView ? [[ListFeedItemCell alloc] initWithReuseIdentifier:reuseIdentifier item:item] : [[FullFeedItemCell alloc]initWithReuseIdentifier:reuseIdentifier item:item];
+}
+@end
+
+@implementation ListFeedItemCell
+
+- (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView { return 50; }
+- (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item {
+    self = [super initWithStyle:UITableViewStylePlain reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.item = item;
+        self.textLabel.text = item.title;
+    }
+    return self;
+}
+
+@end
+
+@interface FullFeedItemCell ()
 {
     NSUInteger _htmlHash; // preserved hash to avoid relayouting for same HTML
 }
@@ -25,16 +51,8 @@
 @property (nonatomic, readonly) UIButton* keepUnreadBtn;
 
 @end
-@implementation FeedItemCell
+@implementation FullFeedItemCell
 
-@synthesize attributedString = _attributedString;
-@synthesize attributedTextContextView = _attributedTextContextView;
-@synthesize titleView = _titleView, item = _item;
-@synthesize starBtn1 = _starBtn1, starBtn2 = _starBtn2;
-@synthesize keepUnreadBtn = _keepUnreadBtn;
-@synthesize plusShareBtn = _plusShareBtn;
-@synthesize plusOneBtn = _plusOneBtn;
-@synthesize dateView = _dateView;
 
 
 - (void)openTitleLink {
@@ -47,16 +65,26 @@
     if (self) {
 		_attributedTextContextView = [[DTAttributedTextContentView alloc] initWithFrame:CGRectZero];
 		_attributedTextContextView.edgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-        _item = item;
+        self.item = item;
 
         _titleView = [UIButton buttonWithType:UIButtonTypeCustom];
         [_titleView setTitle:item.title forState:UIControlStateNormal];
         [_titleView setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+        _titleView.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [_titleView sizeToFit];
         [_titleView addTarget:self action:@selector(openTitleLink) forControlEvents:UIControlEventTouchUpInside];
 
         _dateView = [[UILabel alloc] initWithFrame:CGRectZero];
-        _dateView.text = [[NSDate dateWithTimeIntervalSince1970:item.published] description];
+        
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+        [dateFormatter setDoesRelativeDateFormatting:YES];
+        
+        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:item.published];
+        
+        _dateView.text = [dateFormatter stringFromDate:date];
+        
         [_dateView sizeToFit];
 
         _starBtn1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
@@ -89,8 +117,11 @@
         [self.contentView addSubview:_plusShareBtn];
         [self.contentView addSubview:_keepUnreadBtn];
 		[self.contentView addSubview:_attributedTextContextView];
-    //    [self setHTMLString:@"<div>test <img src=\"http://www.gravatar.com/avatar/a41a211aed3597a7d55f9b7ca5b32a41?s=32&d=identicon&r=PG\" width=\"200\" height=\"200\"/></div>"];
         [self setHTMLString:item.content.content];
+        
+        self.attributedTextContextView.shouldDrawImages = YES;
+        self.attributedTextContextView.shouldDrawLinks = NO;
+
     }
     return self;
 }
@@ -103,14 +134,18 @@
 	CGFloat neededContentHeight = [self requiredRowHeightInTableView:(UITableView *)self.superview];
 	
 	// after the first call here the content view size is correct
-    CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING;
+    CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING + 9;
     CGFloat bottomOffset =  _starBtn2.frame.size.height + TITLE_SPACING;
     CGFloat contentWidth = self.contentView.bounds.size.width - 10;
     CGRect titleFrame = _titleView.frame;
+    CGRect dateFrame = _dateView.frame;
+    
+    titleFrame.origin.y = 9;
+    titleFrame.size.width -= dateFrame.size.width - 10;
     titleFrame.origin.x = 10;
     _titleView.frame = titleFrame;
-    CGRect dateFrame = _dateView.frame;
-    dateFrame.origin.x = contentWidth - dateFrame.size.width - 20;
+    dateFrame.origin.x = contentWidth - dateFrame.size.width - 5;
+    dateFrame.origin.y = 9;
     _dateView.frame = dateFrame;
 
     CGRect star1Frame = _starBtn1.frame;
@@ -170,14 +205,6 @@
 
 #pragma mark Properties
 
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated
-{
-    [super setSelected:selected animated:animated];
-    
-    // Configure the view for the selected state
-}
-
 - (void)setHTMLString:(NSString *)html
 {
 	// we don't preserve the html but compare it's hash
@@ -189,8 +216,7 @@
 	}
 	
 	_htmlHash = newHash;
-//	html = [html stringByReplacingOccurrencesOfString:@"<div" withString:@"<p"];
-//	html = [html stringByReplacingOccurrencesOfString:@"</div" withString:@"</p"];
+
 	NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
 	void (^callBackBlock)(DTHTMLElement *element) = ^(DTHTMLElement *element) {
         // if an element is larger than twice the font size put it in it's own block

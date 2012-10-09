@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "NINetworkTableViewController.h"
+#import "LoadingViewController.h"
 
 @class FeedsViewController;
 
-@interface SubscriptionsViewController : NINetworkTableViewController
+@interface SubscriptionsViewController : LoadingViewController
 
 
 @property(nonatomic, strong) FeedsViewController *feedsViewController;

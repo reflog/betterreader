@@ -13,30 +13,28 @@
 @end
 
 @implementation FeedViewToolbar
-
+@synthesize delegate = myDelegate;
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        UIToolbar* toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, [DYFloatingHeaderView height])];
-
-        toolbar.items = @[
+        self.items = @[
             [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh handler:^(id sender) {
                 [self.delegate refreshClicked];
             }],
             [[UIBarButtonItem alloc] initWithCustomView:[self makeDisplayModeButton]],
-            [self makeViewModeButton],
+            [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace handler:^(id sender) {
+                
+            }],
             [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind handler:^(id sender) {
                 [self.delegate prevFeedItemClicked];
             }],
             [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward handler:^(id sender) {
                 [self.delegate nextFeedItemClicked];
             }],
+            [self makeViewModeButton],
             [self makeSettingsButton]
         ];
-        toolbar.translucent = YES;
-        [self addSubview:toolbar];
-        self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
