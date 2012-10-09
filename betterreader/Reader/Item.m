@@ -12,17 +12,6 @@
 
 @implementation Item
 
-@synthesize canonical;
-@synthesize content;
-@synthesize crawlTimeMsec;
-@synthesize isReadStateLocked;
-@synthesize itemId;
-@synthesize published;
-@synthesize timestampUsec;
-@synthesize title;
-@synthesize updated;
-@synthesize author;
-
 + (Item *)instanceFromDictionary:(NSDictionary *)aDictionary
 {
 
@@ -45,7 +34,7 @@
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    if ([key isEqualToString:@"canonical"]) {
+    if ([key isEqualToString:@"canonical"] || [key isEqualToString:@"alternate"]) {
         
         if ([value isKindOfClass:[NSArray class]])
         {

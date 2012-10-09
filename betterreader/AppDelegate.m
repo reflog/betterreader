@@ -69,7 +69,8 @@
     self.splitViewController.masterViewController = subsNav;
     self.splitViewController.detailViewController = feedsNav;
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [self.window addSubview:self.splitViewController.view];
+    self.window.rootViewController = self.splitViewController;
+    [self.window layoutSubviews];
     
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openBrowser:) name:kEventBrowserOpen object:nil];

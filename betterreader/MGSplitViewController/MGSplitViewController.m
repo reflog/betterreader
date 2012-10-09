@@ -165,6 +165,10 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
+    if (self.detailViewController)
+    {
+        return [self.detailViewController shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+    }
     return YES;
 }
 
@@ -186,9 +190,6 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
 										 duration:(NSTimeInterval)duration
 {
-	[self.masterViewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	[self.detailViewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	
 	// Hide popover.
 	if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
 		[_hiddenPopoverController dismissPopoverAnimated:NO];
@@ -197,6 +198,10 @@
 	// Re-tile views.
 	_reconfigurePopup = YES;
 	[self layoutSubviewsForInterfaceOrientation:toInterfaceOrientation withAnimation:YES];
+    
+	[self.masterViewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[self.detailViewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
 }
 
 
@@ -502,7 +507,6 @@
 	[self.detailViewController viewWillAppear:animated];
 	
 	_reconfigurePopup = YES;
-	[self layoutSubviews];
 }
 
 
@@ -514,6 +518,7 @@
 		[self.masterViewController viewDidAppear:animated];
 	}
 	[self.detailViewController viewDidAppear:animated];
+	[self layoutSubviews];
 }
 
 
@@ -961,6 +966,10 @@
 		if ([_viewControllers objectAtIndex:0] == newMaster) {
 			changed = NO;
 		} else {
+            // remove old master's view from the view hierarchy
+            // otherwise new master's view will be added in next layout without removing old view
+            // leaving the view while deallocating the vc will lead to crashes if the view uses the vc as datasource or delegate
+            [[[self masterViewController] view] removeFromSuperview];
 			[_viewControllers replaceObjectAtIndex:0 withObject:newMaster];
 		}
 		
@@ -999,6 +1008,10 @@
 		if ([_viewControllers objectAtIndex:1] == detail) {
 			changed = NO;
 		} else {
+            // remove old master's view from the view hierarchy
+            // otherwise new master's view will be added in next layout without removing old view
+            // leaving the view while deallocating the vc will lead to crashes if the view uses the vc as datasource or delegate
+            [[[self masterViewController] view] removeFromSuperview];
 			[_viewControllers replaceObjectAtIndex:1 withObject:detail];
 		}
 		

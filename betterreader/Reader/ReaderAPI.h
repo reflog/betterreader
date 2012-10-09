@@ -3,6 +3,7 @@
 //
 // To change the template use AppCode | Preferences | File Templates.
 //
+#import "GTMOAuth2ViewControllerTouch.h"
 
 @class Subscription;
 
@@ -24,7 +25,7 @@ typedef void (^json_process_block_t)(id);
 
 + (ReaderAPI*) sharedInstance;
 - (BOOL) requiresAuthentication;
-- (UIViewController *) authenticateWithBlock:(auth_block_t)block;
+- (GTMOAuth2ViewControllerTouch *) authenticateWithBlock:(auth_block_t)block;
 - (void)fetchSubscriptionsWithBlock:(operation_block_t)block;
 - (void)fetchFeed:(Subscription*)subscription withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly;
 

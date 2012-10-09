@@ -105,10 +105,12 @@
 	// after the first call here the content view size is correct
     CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING;
     CGFloat bottomOffset =  _starBtn2.frame.size.height + TITLE_SPACING;
-    CGFloat contentWidth = self.contentView.bounds.size.width;
-
+    CGFloat contentWidth = self.contentView.bounds.size.width - 10;
+    CGRect titleFrame = _titleView.frame;
+    titleFrame.origin.x = 10;
+    _titleView.frame = titleFrame;
     CGRect dateFrame = _dateView.frame;
-    dateFrame.origin.x = contentWidth - dateFrame.size.width;
+    dateFrame.origin.x = contentWidth - dateFrame.size.width - 20;
     _dateView.frame = dateFrame;
 
     CGRect star1Frame = _starBtn1.frame;
@@ -118,6 +120,7 @@
     CGFloat bottomY =  neededContentHeight - bottomOffset + 5;
 
     CGRect star2Frame = _starBtn2.frame;
+    star2Frame.origin.x = 10;
     star2Frame.origin.y = bottomY;
     _starBtn2.frame = star2Frame;
 
@@ -134,7 +137,7 @@
     _plusOneBtn.frame = plusOneFrame;
 
 
-    CGRect frame = CGRectMake(0, topOffset, contentWidth, neededContentHeight - topOffset - bottomOffset);
+    CGRect frame = CGRectMake(10, topOffset, contentWidth-80, neededContentHeight - topOffset - bottomOffset);
 	
 	// only change frame if width has changed to avoid extra layouting
 	if (_attributedTextContextView.frame.size.width != frame.size.width)
@@ -146,11 +149,16 @@
 
 }
 
+- (void)setFrame:(CGRect)frame {
+    frame.origin.x -= 20;
+    frame.size.width += 40;
+    [super setFrame:frame];
+}
 
 - (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView
 {
 	
-	CGFloat contentWidth = tableView.frame.size.width;
+	CGFloat contentWidth = tableView.frame.size.width - 10;
     
 	CGSize neededSize = [_attributedTextContextView suggestedFrameSizeToFitEntireStringConstraintedToWidth:contentWidth];
     CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING;

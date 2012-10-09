@@ -9,13 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface Feed : NSObject {
-    NSString *continuation;
-    NSString *descriptionText;
-    bool direction;
-    NSString *feedId;
-    NSArray *items;
-    NSString *title;
-    long long updated;
 }
 
 @property (nonatomic, copy) NSString *continuation;

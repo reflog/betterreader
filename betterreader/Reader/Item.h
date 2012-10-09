@@ -11,16 +11,6 @@
 @class GDataXMLNode;
 
 @interface Item : NSObject {
-    NSArray *canonical;
-    ItemContent *content;
-    NSString *crawlTimeMsec;
-    BOOL isReadStateLocked;
-    NSString *itemId;
-    NSString *authro;
-    long long published;
-    long long timestampUsec;
-    NSString *title;
-    long long updated;
 }
 
 @property (nonatomic, copy) NSArray *canonical;
