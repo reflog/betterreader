@@ -11,12 +11,13 @@
 #import "FeedViewToolbar.h"
 #import "LoadingViewController.h"
 
+#define kMoreItemsRequested @"kMoreItemsRequested"
+
 @class Feed;
 
-@interface FeedsViewController : LoadingViewController<NITableViewModelDelegate,
-                                DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate, FeedViewToolbarDelegate>
+@interface FeedsViewController : LoadingViewController<NITableViewModelDelegate, FeedViewToolbarDelegate>
 
 @property (nonatomic, strong) Feed* feed;
 - (void)setLoadingFeed:(BOOL)loading;
-
+- (void)moreFeedItemsLoaded;
 @end

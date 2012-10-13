@@ -16,7 +16,7 @@ typedef void (^json_process_block_t)(id);
 #define kFeedItemsUrl @"https://www.google.com/reader/api/0/stream/contents/"
 #define kUserInfoUrl @"https://www.google.com/reader/api/0/user-info"
 
-#define kMaxItemsPerFetch 20
+#define kMaxItemsPerFetch 2
 #define kAppName @"BetterReaderIOS"
 #define kUnlabeledItems @"___UNLABELED_ITEMS___"
 

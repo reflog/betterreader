@@ -33,12 +33,25 @@
 @synthesize feedsViewController = _feedsViewController;
 @synthesize cellFactory = _cellFactory;
 
+- (void) loadMoreForCurrentFeed {
+    NIDrawRectBlockCellObject* obj = [self.model objectAtIndexPath:[self.tableView indexPathForSelectedRow]];
+    Subscription * s = [obj.object valueForKey:@"object"];
+    if(self.feedsViewController.feed == s.feed){
+        [[ReaderAPI sharedInstance] fetchFeed:s withBlock:^(NSError *e) {
+            //TODO: handle error
+            if(!e){
+                [self.feedsViewController moreFeedItemsLoaded];
+            }
+        } unreadOnly:unreadOnly];
+    }
+}
 
 - (void)buildSubscriptionModel
 {
     NITableViewActionBlock tapAction = ^BOOL(id object, UIViewController *controller) {
         NIDrawRectBlockCellObject* obj = object;
         Subscription * s = [obj.object valueForKey:@"object"];
+        if(self.feedsViewController.feed && self.feedsViewController.feed == s.feed) return YES;
         [self.feedsViewController setLoadingFeed:YES];
         [[ReaderAPI sharedInstance] fetchFeed:s withBlock:^(NSError *e) {
             //TODO: handle error
@@ -91,6 +104,8 @@
         [self.view addSubview:self.tableView];
         [self.view sendSubviewToBack:self.tableView];
         self.actions = [[NITableViewActions alloc] initWithController:self];
+        self.tableView.delegate = self.actions;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMoreForCurrentFeed) name:kMoreItemsRequested object:nil];
     }
     return self;
 }
@@ -102,7 +117,7 @@
 {
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Feeds", nil);
-    unreadOnly = YES;
+    unreadOnly = YES; //TODO: read from defaults
     __block UIBarButtonItem* btn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Unread", nil) style:UIBarButtonItemStylePlain handler:^(id sender) {
         unreadOnly = !unreadOnly;
         btn.title = unreadOnly ? NSLocalizedString(@"Unread", nil) : NSLocalizedString(@"All", nil);
@@ -117,7 +132,6 @@
         [me buildSubscriptionModel];
     };
     [self setLoading:YES];
-    self.tableView.delegate = self.actions;
 
     if([[ReaderAPI sharedInstance] requiresAuthentication])
         [self authenticateTry];

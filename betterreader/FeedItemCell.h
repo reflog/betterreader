@@ -7,6 +7,8 @@
 //
 
 #import "Item.h"
+#import "NINetworkImageView.h"
+
 @interface IFeedItemCell : UITableViewCell
 - (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView;
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item;
@@ -14,7 +16,7 @@
 @property (nonatomic, strong) Item* item;
 @end
 
-@interface FullFeedItemCell : IFeedItemCell
+@interface FullFeedItemCell : IFeedItemCell <DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate, NINetworkImageViewDelegate>
 @property (nonatomic, strong) NSAttributedString *attributedString;
 @property (nonatomic, readonly) DTAttributedTextContentView *attributedTextContextView;
 - (void)setHTMLString:(NSString *)html;

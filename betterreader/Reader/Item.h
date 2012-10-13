@@ -23,7 +23,7 @@
 @property (nonatomic, assign) long long timestampUsec;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, assign) long long updated;
-
+@property (nonatomic, assign) BOOL isRead;
 + (Item *)instanceFromDictionary:(NSDictionary *)aDictionary;
 
 @end

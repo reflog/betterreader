@@ -88,8 +88,18 @@
 - (void)fetchFeed:(Subscription*)subscription withBlock:(operation_block_t)block unreadOnly:(BOOL)unreadOnly
 {
     NSString* furl = [NSString stringWithFormat:@"%@%@?r=n&n=%d%@", kFeedItemsUrl, [subscription.subscribtionId stringByAddingPercentEscapesForURLParameter], kMaxItemsPerFetch, unreadOnly ? [NSString stringWithFormat:@"&xt=user/%@/state/com.google/read" , self.userId] : @"", nil];
+    if(subscription.feed.continuation)
+        furl = [furl stringByAppendingFormat:@"&c=%@",subscription.feed.continuation];
     [self performJSONFetchUrl:furl withBlock:block withProcessBlock:^(id data) {
-        subscription.feed = [Feed instanceFromDictionary:data];
+        Feed* f = [Feed instanceFromDictionary:data];
+        if(!subscription.feed)
+            subscription.feed = f;
+        else{
+            subscription.feed.continuation = f.continuation;
+            NSMutableArray* m = [NSMutableArray arrayWithArray: subscription.feed.items];
+            [m addObjectsFromArray:f.items];
+            subscription.feed.items = m;
+        }
     }];
 }
 
