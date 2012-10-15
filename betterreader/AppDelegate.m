@@ -13,7 +13,7 @@
 #import "Utils.h"
 #import "NIWebController.h"
 #import "DCIntrospect.h"
-
+#import "AFNetworkActivityIndicatorManager.h"
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -74,7 +74,8 @@
     
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openBrowser:) name:kEventBrowserOpen object:nil];
-    
+    [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
+
     
     // then you add the Overview view to the window.
   //  [NIOverview addOverviewToWindow:self.window];    

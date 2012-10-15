@@ -62,6 +62,7 @@
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
 
+    if([key isEqualToString:@"self"])return;
     if ([key isEqualToString:@"description"]) {
         [self setValue:value forKey:@"descriptionText"];
     } else if ([key isEqualToString:@"updated"]) {

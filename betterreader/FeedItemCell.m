@@ -31,7 +31,7 @@
 
 - (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView { return 50; }
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item {
-    self = [super initWithStyle:UITableViewStylePlain reuseIdentifier:reuseIdentifier];
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
     if (self) {
         self.item = item;
         self.textLabel.text = item.title;
@@ -91,7 +91,7 @@
 
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier item:(Item*)item
 {
-    self = [super initWithStyle:UITableViewStylePlain reuseIdentifier:reuseIdentifier];
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
     if (self) {
 		_attributedTextContextView = [[DTAttributedTextContentView alloc] initWithFrame:CGRectZero];
 		_attributedTextContextView.edgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
@@ -101,7 +101,6 @@
         [_titleView setTitle:item.title forState:UIControlStateNormal];
         [_titleView setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
         _titleView.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-        [_titleView sizeToFit];
         [_titleView addTarget:self action:@selector(openTitleLink) forControlEvents:UIControlEventTouchUpInside];
 
         _dateView = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -115,8 +114,6 @@
         
         _dateView.text = [dateFormatter stringFromDate:date];
         
-        [_dateView sizeToFit];
-
         _starBtn1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         [_starBtn1 setTitle:@"Star" forState:UIControlStateNormal];
         [_starBtn1 sizeToFit];
@@ -157,56 +154,58 @@
     return self;
 }
 
-#define TITLE_SPACING 10
+#define ITEM_SPACING 10
+#define TOP_OFFSET 50
+#define CELL_PADDING 9
+#define BOTTOM_OFFESET 50
 
 - (void)layoutSubviews
 {
-	
-	CGFloat neededContentHeight = [self requiredRowHeightInTableView:(UITableView *)self.superview];
-	
-	// after the first call here the content view size is correct
-    CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING + 9;
-    CGFloat bottomOffset =  _starBtn2.frame.size.height + TITLE_SPACING;
-    CGFloat contentWidth = self.contentView.bounds.size.width - 10;
+    UITableView* t = (UITableView*) self.superview;
+	CGFloat contentHeight = self.contentView.bounds.size.height;
+	CGFloat contentWidth = t.frame.size.width - 70;
+//    CGFloat contentWidth = self.contentView.bounds.size.width - CELL_PADDING - 70;
+    [_dateView sizeToFit];
+    [_titleView sizeToFit];
+    
     CGRect titleFrame = _titleView.frame;
     CGRect dateFrame = _dateView.frame;
+    CGRect star1Frame = _starBtn1.frame;
+    CGRect star2Frame = _starBtn2.frame;
+    CGRect keepUnreadFrame = _keepUnreadBtn.frame;
+    CGRect plusShareFrame = _plusShareBtn.frame;
+    CGRect plusOneFrame = _plusOneBtn.frame;
     
-    titleFrame.origin.y = 9;
-    titleFrame.size.width -= dateFrame.size.width - 10;
-    titleFrame.origin.x = 10;
+    titleFrame.origin = CGPointMake(CELL_PADDING, CELL_PADDING);
+    titleFrame.size.width = contentWidth - dateFrame.size.width - ITEM_SPACING*2 - star1Frame.size.width - CELL_PADDING;
     _titleView.frame = titleFrame;
-    dateFrame.origin.x = contentWidth - dateFrame.size.width - 5;
-    dateFrame.origin.y = 9;
+    
+    dateFrame.origin = CGPointMake(contentWidth - dateFrame.size.width - CELL_PADDING, CELL_PADDING);
     _dateView.frame = dateFrame;
 
-    CGRect star1Frame = _starBtn1.frame;
-    star1Frame.origin.x = _titleView.frame.size.width + 10;
+    star1Frame.origin =  CGPointMake(titleFrame.origin.x + titleFrame.size.width + ITEM_SPACING, CELL_PADDING);
     _starBtn1.frame = star1Frame;
+    
+    
+    CGFloat bottomY =  contentHeight - BOTTOM_OFFESET - CELL_PADDING;
 
-    CGFloat bottomY =  neededContentHeight - bottomOffset + 5;
-
-    CGRect star2Frame = _starBtn2.frame;
-    star2Frame.origin.x = 10;
-    star2Frame.origin.y = bottomY;
+    star2Frame.origin = CGPointMake(CELL_PADDING, bottomY);
     _starBtn2.frame = star2Frame;
 
-    CGRect keepUnreadFrame = _keepUnreadBtn.frame;
-    keepUnreadFrame.origin = CGPointMake(star2Frame.origin.x + star2Frame.size.width + 10, bottomY);
+    keepUnreadFrame.origin = CGPointMake(star2Frame.origin.x + star2Frame.size.width + ITEM_SPACING, bottomY);
     _keepUnreadBtn.frame = keepUnreadFrame;
 
-    CGRect plusShareFrame = _plusShareBtn.frame;
-    plusShareFrame.origin = CGPointMake(keepUnreadFrame.origin.x + keepUnreadFrame.size.width + 10, bottomY);
+    plusShareFrame.origin = CGPointMake(keepUnreadFrame.origin.x + keepUnreadFrame.size.width + ITEM_SPACING, bottomY);
     _plusShareBtn.frame = plusShareFrame;
 
-    CGRect plusOneFrame = _plusOneBtn.frame;
-    plusOneFrame.origin = CGPointMake(plusShareFrame.origin.x + plusShareFrame.size.width + 10, bottomY);
+    plusOneFrame.origin = CGPointMake(plusShareFrame.origin.x + plusShareFrame.size.width + ITEM_SPACING, bottomY);
     _plusOneBtn.frame = plusOneFrame;
 
 
-    CGRect frame = CGRectMake(10, topOffset, contentWidth-80, neededContentHeight - topOffset - bottomOffset);
-	
+    CGRect frame = CGRectMake(CELL_PADDING, TOP_OFFSET , contentWidth, contentHeight - TOP_OFFSET - BOTTOM_OFFESET);
+	NSLog(@"sf %@ af %@",NSStringFromCGRect(star2Frame),NSStringFromCGRect(frame));
 	// only change frame if width has changed to avoid extra layouting
-	if (_attributedTextContextView.frame.size.width != frame.size.width)
+    if(!CGSizeEqualToSize(_attributedTextContextView.frame.size, frame.size))
 	{
 		_attributedTextContextView.frame = frame;
 	}
@@ -223,15 +222,12 @@
 
 - (CGFloat)requiredRowHeightInTableView:(UITableView *)tableView
 {
-	
-	CGFloat contentWidth = tableView.frame.size.width - 10;
+	CGFloat contentWidth = tableView.frame.size.width - 70;
     
 	CGSize neededSize = [_attributedTextContextView suggestedFrameSizeToFitEntireStringConstraintedToWidth:contentWidth];
-    CGFloat topOffset = _titleView.frame.size.height + TITLE_SPACING;
-    CGFloat bottomOffset =  _starBtn2.frame.size.height + TITLE_SPACING;
+//    if(self.attributedTextContextView.bounds.size.height>neededSize.height) neededSize.height = self.attributedTextContextView.bounds.size.height;
 	
-	// note: non-integer row heights caused trouble < iOS 5.0
-	return (int)(neededSize.height + topOffset + bottomOffset );
+	return (int)(neededSize.height + TOP_OFFSET + BOTTOM_OFFESET );
 }
 
 #pragma mark Properties
@@ -394,6 +390,7 @@
 	else if (attachment.contentType == DTTextAttachmentTypeImage)
 	{
         if(!attachment.contentURL) return nil;
+//        return nil;
 		// if the attachment has a hyperlinkURL then this is currently ignored
         NINetworkImageView *imageView = [[NINetworkImageView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
         [imageView setSizeForDisplay:NO];
@@ -443,6 +440,8 @@ static const CGSize CGSizeZeroOne = {1,1};
 - (void)networkImageView:(NINetworkImageView *)imageView didLoadImage:(UIImage *)image
 {
     [self performBlock:^(id sender) {
+//        NSLog(@"cell %@ content %@ height %@",  NSStringFromCGRect(self.contentView.bounds),  NSStringFromCGRect(self.attributedTextContextView.bounds),  NSStringFromCGSize( [self.attributedTextContextView suggestedFrameSizeToFitEntireStringConstraintedToWidth:self.contentView.bounds.size.width]));
+  //      return;
         NSURL *url = [imageView associatedValueForKey:"imageUrl"];
         CGSize imageSize = image.size;
         DTAttributedTextContentView* _textView = [imageView associatedValueForKey:"cell"];

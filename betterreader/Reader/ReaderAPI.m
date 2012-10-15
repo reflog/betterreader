@@ -46,8 +46,8 @@
 }
 
 - (NSString*) applyCommonParamsToUrl:(NSString*)url {
-    NSInteger timestamp = [[NSDate date] timeIntervalSince1970] * 1000 * -1;
-    NSString* ts = [NSString stringWithFormat:@"%d", timestamp];
+    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 ;
+    NSString* ts = [NSString stringWithFormat:@"%lld", timestamp];
     return [url stringByAddingQueryDictionary:[NSDictionary dictionaryWithObjectsAndKeys:ts,@"ck",kAppName,@"client", nil]];
 }
 
@@ -90,6 +90,9 @@
     NSString* furl = [NSString stringWithFormat:@"%@%@?r=n&n=%d%@", kFeedItemsUrl, [subscription.subscribtionId stringByAddingPercentEscapesForURLParameter], kMaxItemsPerFetch, unreadOnly ? [NSString stringWithFormat:@"&xt=user/%@/state/com.google/read" , self.userId] : @"", nil];
     if(subscription.feed.continuation)
         furl = [furl stringByAppendingFormat:@"&c=%@",subscription.feed.continuation];
+    //TODO: fix this. fetch only items newer than what u got
+    //seems to be working. test
+    //furl = [furl stringByAppendingFormat:@"&ot=%lld",subscription.newestItemTimestampUsec];
     [self performJSONFetchUrl:furl withBlock:block withProcessBlock:^(id data) {
         Feed* f = [Feed instanceFromDictionary:data];
         if(!subscription.feed)

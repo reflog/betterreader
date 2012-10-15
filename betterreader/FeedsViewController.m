@@ -113,12 +113,14 @@
     if(!cell)
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ident];
-        cell.accessoryView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        UIActivityIndicatorView*act = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        cell.accessoryView = act;
         cell.textLabel.text = NSLocalizedString(@"Loading...", nil);
-        [cell.accessoryView sizeToFit];
+        [act sizeToFit];
+        [act startAnimating];
     }
     if(!moreItemsRequested){ // don't request load more twice
-        [[NSNotificationCenter defaultCenter] postNotificationName:kMoreItemsRequested object:nil];
+       // [[NSNotificationCenter defaultCenter] postNotificationName:kMoreItemsRequested object:nil];
         moreItemsRequested = YES;
     }
     return cell;
@@ -149,6 +151,7 @@
     _feed = f;
     self.title = f.title;
     NSMutableArray* feed_items = [NSMutableArray array];
+    //TODO: handle 'no items' case.
     ((Item*)self.feed.items[0]).isRead = YES;
     for (Item* i in self.feed.items) {
         [feed_items addObject:@""];
@@ -235,10 +238,9 @@
 - (void)moreFeedItemsLoaded
 {
     [self.currentTableView beginUpdates];
-    NSIndexPath* loadIp = [NSIndexPath indexPathForRow:0 inSection:[self.currentTableView numberOfSections]-1];
     Item* lastItem = [self.model objectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.currentTableView numberOfSections]-2]];
-    [self.model removeObjectAtIndexPath:loadIp];
-    [self.currentTableView deleteRowsAtIndexPaths:@[loadIp] withRowAnimation:UITableViewRowAnimationAutomatic];
+    NSArray* loadIp = [self.model removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self.currentTableView numberOfSections]-1]];
+    [self.currentTableView deleteRowsAtIndexPaths:loadIp withRowAnimation:UITableViewRowAnimationAutomatic];
     int lasti = [self.feed.items indexOfObject:lastItem];
     for(int i=lasti+1;i<self.feed.items.count;i++)
     {
