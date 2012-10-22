@@ -187,7 +187,7 @@
     _starBtn1.frame = star1Frame;
     
     
-    CGFloat bottomY =  contentHeight - BOTTOM_OFFESET - CELL_PADDING;
+    CGFloat bottomY =  contentHeight - BOTTOM_OFFESET - CELL_PADDING + 7;
 
     star2Frame.origin = CGPointMake(CELL_PADDING, bottomY);
     _starBtn2.frame = star2Frame;
@@ -234,6 +234,7 @@
 
 - (void)setHTMLString:(NSString *)html
 {
+    NSLog(@"%@",html);
 	// we don't preserve the html but compare it's hash
 	NSUInteger newHash = [html hash];
 	
@@ -281,8 +282,6 @@
 	button.URL = URL;
 	button.minimumHitSize = CGSizeMake(25, 25); // adjusts it's bounds so that button is always large enough
 	button.GUID = identifier;
-    //[button associateValue:attributedTextContentView withKey:"contentView"];
-    // we draw the contents ourselves
 	button.attributedString = string;
 	
 	// make a version with different text color
@@ -299,11 +298,6 @@
 	
 	// use normal push action for opening URL
 	[button addTarget:self action:@selector(linkPushed:) forControlEvents:UIControlEventTouchUpInside];
-	
-	// demonstrate combination with long press
-	UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(linkLongPressed:)];
-	[button addGestureRecognizer:longPress];
-	
 	return button;
 }
 
@@ -314,6 +308,7 @@
 
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttachment:(DTTextAttachment *)attachment frame:(CGRect)frame
 {
+    return nil;
 	if (attachment.contentType == DTTextAttachmentTypeVideoURL)
 	{
 		NSURL *url = (id)attachment.contentURL;
